@@ -55,6 +55,7 @@ namespace PowerPointAddIn1
             this.btnCreateNav = this.Factory.CreateRibbonButton();
             this.btnRefreshNav = this.Factory.CreateRibbonButton();
             this.btnRemoveNav = this.Factory.CreateRibbonButton();
+            this.btnNavBarSetting = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.grpMyTools.SuspendLayout();
             this.group1.SuspendLayout();
@@ -178,6 +179,7 @@ namespace PowerPointAddIn1
             this.group3.Items.Add(this.btnCreateNav);
             this.group3.Items.Add(this.btnRefreshNav);
             this.group3.Items.Add(this.btnRemoveNav);
+            this.group3.Items.Add(this.btnNavBarSetting);
             this.group3.Label = "group3";
             this.group3.Name = "group3";
             // 
@@ -198,6 +200,13 @@ namespace PowerPointAddIn1
             this.btnRemoveNav.Label = "Remove Nav Bar";
             this.btnRemoveNav.Name = "btnRemoveNav";
             this.btnRemoveNav.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button4_Click);
+            // 
+            // btnNavBarSetting
+            // 
+            this.btnNavBarSetting.Label = "Customize Nav Bar";
+            this.btnNavBarSetting.Name = "btnNavBarSetting";
+            this.btnNavBarSetting.Visible = true;
+            this.btnNavBarSetting.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnNavBarSettings_Click);
             // 
             // MyRibbon
             // 
@@ -242,5 +251,6 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnRemoveNav;
         internal Microsoft.Office.Tools.Ribbon.RibbonEditBox SubSectionStart;
         internal Microsoft.Office.Tools.Ribbon.RibbonEditBox SubSectionEnd;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnNavBarSetting;
     }
 }

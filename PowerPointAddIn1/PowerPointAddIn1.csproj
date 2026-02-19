@@ -178,6 +178,10 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="NavBarColorSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NavBarSettings.cs" />
     <Compile Include="InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>

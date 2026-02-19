@@ -9,6 +9,9 @@ namespace PowerPointAddIn1
 {
     public partial class MyRibbon
     {
+        // Navigation Bar Customization Settings
+        private NavBarSettings navBarSettings = new NavBarSettings();
+
         private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             UpdateSectionInfo();
@@ -458,11 +461,11 @@ namespace PowerPointAddIn1
             float barHeight = 60;
             float slideWidth = presentation.PageSetup.SlideWidth;
             
-            // Create black background bar
+            // Create background bar - USE CUSTOM COLOR
             PowerPoint.Shape navBackground = slide.Shapes.AddShape(
                 Office.MsoAutoShapeType.msoShapeRectangle,
                 0, 0, slideWidth, barHeight);
-            navBackground.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Black);
+            navBackground.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.BackgroundColor);
             navBackground.Line.Visible = Office.MsoTriState.msoFalse;
             navBackground.Tags.Add("NavBar", "True");
 
@@ -475,31 +478,18 @@ namespace PowerPointAddIn1
             int currentSlideIndex = slide.SlideIndex;
             int currentSectionIndex = GetSectionIndexForSlide(sections, currentSlideIndex);
 
-            // Define colors for subsections (more visible, solid colors)
-            System.Drawing.Color[] subsectionColors = new System.Drawing.Color[]
-            {
-                System.Drawing.Color.SteelBlue,        // Steel Blue
-                System.Drawing.Color.MediumSeaGreen,   // Medium Sea Green
-                System.Drawing.Color.Goldenrod,        // Golden Rod
-                System.Drawing.Color.IndianRed,        // Indian Red
-                System.Drawing.Color.BlueViolet,       // Blue Violet
-                System.Drawing.Color.DarkOrange,       // Dark Orange
-                System.Drawing.Color.DarkSlateBlue,    // Dark Slate Blue
-                System.Drawing.Color.RosyBrown         // Rosy Brown
-            };
-
             for (int i = 1; i <= sections.Count; i++)
             {
                 string sectionName = sections.Name(i);
                 int slideCountInSection = sections.SlidesCount(i);
                 int firstSlideInSection = sections.FirstSlide(i);
 
-                // Add section name
+                // Add section name - USE CUSTOM COLOR
                 PowerPoint.Shape sectionLabel = slide.Shapes.AddTextbox(
                     Office.MsoTextOrientation.msoTextOrientationHorizontal,
                     currentX, topY, 200, 20);
                 sectionLabel.TextFrame.TextRange.Text = sectionName;
-                sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.White);
+                sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SectionNameColor);
                 sectionLabel.TextFrame.TextRange.Font.Size = 12;
                 sectionLabel.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
                 sectionLabel.Line.Visible = Office.MsoTriState.msoFalse;
@@ -525,26 +515,26 @@ namespace PowerPointAddIn1
                         float boxWidth = (group.Count * (circleSize + circleSpacing)) - circleSpacing + 4;
                         float boxHeight = circleSize + 4;
 
-                        // Draw rounded rectangle with colored fill for subsection group
+                        // Draw rounded rectangle with colored fill - USE CUSTOM COLORS
                         PowerPoint.Shape subsectionBox = slide.Shapes.AddShape(
                             Office.MsoAutoShapeType.msoShapeRoundedRectangle,
                             boxX, boxY, boxWidth, boxHeight);
                         
-                        // Set fill color (cycling through colors) - VERY VISIBLE
-                        System.Drawing.Color fillColor = subsectionColors[colorIndex % subsectionColors.Length];
+                        // Set fill color (cycling through colors)
+                        System.Drawing.Color fillColor = navBarSettings.SubsectionBoxColors[colorIndex % navBarSettings.SubsectionBoxColors.Length];
                         subsectionBox.Fill.Visible = Office.MsoTriState.msoTrue;
                         subsectionBox.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(fillColor);
-                        subsectionBox.Fill.Transparency = 0.3f; // Only 30% transparent = 70% visible!
+                        subsectionBox.Fill.Transparency = navBarSettings.SubsectionBoxTransparency;
                         
                         // Add thick visible border
                         subsectionBox.Line.Visible = Office.MsoTriState.msoTrue;
                         subsectionBox.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(fillColor);
                         subsectionBox.Line.Weight = 2.0f;
-                        subsectionBox.Line.Transparency = 0.0f; // Solid border
+                        subsectionBox.Line.Transparency = 0.0f;
                         
                         try
                         {
-                            subsectionBox.Adjustments[1] = 0.25f; // Rounded corners
+                            subsectionBox.Adjustments[1] = 0.25f;
                         }
                         catch { }
                         
@@ -552,7 +542,6 @@ namespace PowerPointAddIn1
                         subsectionBox.Tags.Add("SubsectionBox", group.SubsectionName);
                         subsectionBox.ZOrder(Office.MsoZOrderCmd.msoSendToBack);
                         
-                        // DEBUG: Log that we created a box
                         System.Diagnostics.Debug.WriteLine($"Created colored box for subsection '{group.SubsectionName}' at position {boxX}, color index {colorIndex}");
                         
                         colorIndex++;
@@ -587,27 +576,27 @@ namespace PowerPointAddIn1
 
                     if (slideIndexInPresentation == currentSlideIndex)
                     {
-                        // CURRENT SLIDE: White filled
-                        circle.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.White);
+                        // CURRENT SLIDE - USE CUSTOM COLOR
+                        circle.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
                         circle.Line.Visible = Office.MsoTriState.msoFalse;
                     }
                     else if (!string.IsNullOrEmpty(currentSlideSubsection) && 
                              !string.IsNullOrEmpty(thisSlideSubsection) && 
                              thisSlideSubsection == currentSlideSubsection)
                     {
-                        // SAME SUBSECTION: Red border, black inside
-                        circle.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Black);
+                        // SAME SUBSECTION - USE CUSTOM COLORS
+                        circle.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
                         circle.Fill.Visible = Office.MsoTriState.msoTrue;
                         circle.Line.Visible = Office.MsoTriState.msoTrue;
-                        circle.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
+                        circle.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
                         circle.Line.Weight = 2.0f;
                     }
                     else
                     {
-                        // OTHER SLIDES: White hollow
+                        // OTHER SLIDES - USE CUSTOM COLOR
                         circle.Fill.Visible = Office.MsoTriState.msoFalse;
                         circle.Line.Visible = Office.MsoTriState.msoTrue;
-                        circle.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.White);
+                        circle.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
                         circle.Line.Weight = 1.5f;
                     }
                     
@@ -782,6 +771,24 @@ namespace PowerPointAddIn1
         private void editBox2_TextChanged(object sender, RibbonControlEventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void btnNavBarSettings_Click(object sender, RibbonControlEventArgs e)
+        {
+            using (var settingsDialog = new NavBarColorSettings(navBarSettings))
+            {
+                if (settingsDialog.ShowDialog() == DialogResult.OK)
+                {
+                    navBarSettings = settingsDialog.Settings;
+                    MessageBox.Show("Colors updated! Click 'Refresh Nav Bar' to apply changes.", 
+                        "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
         }
     }
 }
