@@ -561,20 +561,33 @@ namespace PowerPointAddIn1
                 {
                     int slideIndexInPresentation = firstSlideInSection + j;
                     
-                    PowerPoint.Shape shape;
+                    PowerPoint.Shape shape = null;
                     
-                    // Create shape based on settings (Circle or Square)
-                    if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.Square)
+                    // Check if we're using Number Only mode
+                    if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
                     {
-                        shape = slide.Shapes.AddShape(
-                            Office.MsoAutoShapeType.msoShapeRectangle,
+                        // Create just a text box for number only
+                        shape = slide.Shapes.AddTextbox(
+                            Office.MsoTextOrientation.msoTextOrientationHorizontal,
                             circleX, circleY, circleSize, circleSize);
+                        shape.Line.Visible = Office.MsoTriState.msoFalse;
+                        shape.Fill.Visible = Office.MsoTriState.msoFalse;
                     }
                     else
                     {
-                        shape = slide.Shapes.AddShape(
-                            Office.MsoAutoShapeType.msoShapeOval,
-                            circleX, circleY, circleSize, circleSize);
+                        // Create shape based on settings (Circle or Square)
+                        if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.Square)
+                        {
+                            shape = slide.Shapes.AddShape(
+                                Office.MsoAutoShapeType.msoShapeRectangle,
+                                circleX, circleY, circleSize, circleSize);
+                        }
+                        else
+                        {
+                            shape = slide.Shapes.AddShape(
+                                Office.MsoAutoShapeType.msoShapeOval,
+                                circleX, circleY, circleSize, circleSize);
+                        }
                     }
                     
                     // Get this slide's subsection
@@ -586,39 +599,43 @@ namespace PowerPointAddIn1
                     }
                     catch { }
 
-                    if (slideIndexInPresentation == currentSlideIndex)
+                    // Apply colors only if NOT Number Only mode
+                    if (navBarSettings.SlideShapeType != NavBarSettings.ShapeType.NumberOnly)
                     {
-                        // CURRENT SLIDE - USE CUSTOM COLOR
-                        shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
-                        shape.Line.Visible = Office.MsoTriState.msoFalse;
-                    }
-                    else if (!string.IsNullOrEmpty(currentSlideSubsection) && 
-                             !string.IsNullOrEmpty(thisSlideSubsection) && 
-                             thisSlideSubsection == currentSlideSubsection)
-                    {
-                        // SAME SUBSECTION - USE CUSTOM COLORS
-                        shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
-                        shape.Fill.Visible = Office.MsoTriState.msoTrue;
-                        shape.Line.Visible = Office.MsoTriState.msoTrue;
-                        shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
-                        shape.Line.Weight = 2.0f;
-                    }
-                    else
-                    {
-                        // OTHER SLIDES - USE CUSTOM COLOR
-                        shape.Fill.Visible = Office.MsoTriState.msoFalse;
-                        shape.Line.Visible = Office.MsoTriState.msoTrue;
-                        shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
-                        shape.Line.Weight = 1.5f;
+                        if (slideIndexInPresentation == currentSlideIndex)
+                        {
+                            // CURRENT SLIDE - USE CUSTOM COLOR
+                            shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
+                            shape.Line.Visible = Office.MsoTriState.msoFalse;
+                        }
+                        else if (!string.IsNullOrEmpty(currentSlideSubsection) && 
+                                 !string.IsNullOrEmpty(thisSlideSubsection) && 
+                                 thisSlideSubsection == currentSlideSubsection)
+                        {
+                            // SAME SUBSECTION - USE CUSTOM COLORS
+                            shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
+                            shape.Fill.Visible = Office.MsoTriState.msoTrue;
+                            shape.Line.Visible = Office.MsoTriState.msoTrue;
+                            shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
+                            shape.Line.Weight = 2.0f;
+                        }
+                        else
+                        {
+                            // OTHER SLIDES - USE CUSTOM COLOR
+                            shape.Fill.Visible = Office.MsoTriState.msoFalse;
+                            shape.Line.Visible = Office.MsoTriState.msoTrue;
+                            shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
+                            shape.Line.Weight = 1.5f;
+                        }
                     }
                     
                     shape.Tags.Add("NavBar", "True");
 
-                    // ADD SLIDE NUMBERS if enabled
-                    if (navBarSettings.ShowSlideNumbers)
+                    // ADD SLIDE NUMBERS if enabled OR if NumberOnly mode
+                    if (navBarSettings.ShowSlideNumbers || navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
                     {
                         shape.TextFrame.TextRange.Text = slideIndexInPresentation.ToString();
-                        shape.TextFrame.TextRange.Font.Size = 8;
+                        shape.TextFrame.TextRange.Font.Size = navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly ? 10 : 8;
                         shape.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SlideNumberColor);
                         shape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
                         shape.TextFrame.TextRange.ParagraphFormat.Alignment = PowerPoint.PpParagraphAlignment.ppAlignCenter;

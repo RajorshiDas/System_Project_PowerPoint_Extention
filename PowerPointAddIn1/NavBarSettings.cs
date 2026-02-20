@@ -9,7 +9,8 @@ namespace PowerPointAddIn1
         public enum ShapeType
         {
             Circle,
-            Square
+            Square,
+            NumberOnly
         }
 
         public Color BackgroundColor { get; set; } = Color.Black;
