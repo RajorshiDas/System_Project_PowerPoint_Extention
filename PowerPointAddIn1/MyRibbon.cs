@@ -561,9 +561,21 @@ namespace PowerPointAddIn1
                 {
                     int slideIndexInPresentation = firstSlideInSection + j;
                     
-                    PowerPoint.Shape circle = slide.Shapes.AddShape(
-                        Office.MsoAutoShapeType.msoShapeOval,
-                        circleX, circleY, circleSize, circleSize);
+                    PowerPoint.Shape shape;
+                    
+                    // Create shape based on settings (Circle or Square)
+                    if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.Square)
+                    {
+                        shape = slide.Shapes.AddShape(
+                            Office.MsoAutoShapeType.msoShapeRectangle,
+                            circleX, circleY, circleSize, circleSize);
+                    }
+                    else
+                    {
+                        shape = slide.Shapes.AddShape(
+                            Office.MsoAutoShapeType.msoShapeOval,
+                            circleX, circleY, circleSize, circleSize);
+                    }
                     
                     // Get this slide's subsection
                     string thisSlideSubsection = "";
@@ -577,30 +589,46 @@ namespace PowerPointAddIn1
                     if (slideIndexInPresentation == currentSlideIndex)
                     {
                         // CURRENT SLIDE - USE CUSTOM COLOR
-                        circle.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
-                        circle.Line.Visible = Office.MsoTriState.msoFalse;
+                        shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
+                        shape.Line.Visible = Office.MsoTriState.msoFalse;
                     }
                     else if (!string.IsNullOrEmpty(currentSlideSubsection) && 
                              !string.IsNullOrEmpty(thisSlideSubsection) && 
                              thisSlideSubsection == currentSlideSubsection)
                     {
                         // SAME SUBSECTION - USE CUSTOM COLORS
-                        circle.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
-                        circle.Fill.Visible = Office.MsoTriState.msoTrue;
-                        circle.Line.Visible = Office.MsoTriState.msoTrue;
-                        circle.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
-                        circle.Line.Weight = 2.0f;
+                        shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
+                        shape.Fill.Visible = Office.MsoTriState.msoTrue;
+                        shape.Line.Visible = Office.MsoTriState.msoTrue;
+                        shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
+                        shape.Line.Weight = 2.0f;
                     }
                     else
                     {
                         // OTHER SLIDES - USE CUSTOM COLOR
-                        circle.Fill.Visible = Office.MsoTriState.msoFalse;
-                        circle.Line.Visible = Office.MsoTriState.msoTrue;
-                        circle.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
-                        circle.Line.Weight = 1.5f;
+                        shape.Fill.Visible = Office.MsoTriState.msoFalse;
+                        shape.Line.Visible = Office.MsoTriState.msoTrue;
+                        shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
+                        shape.Line.Weight = 1.5f;
                     }
                     
-                    circle.Tags.Add("NavBar", "True");
+                    shape.Tags.Add("NavBar", "True");
+
+                    // ADD SLIDE NUMBERS if enabled
+                    if (navBarSettings.ShowSlideNumbers)
+                    {
+                        shape.TextFrame.TextRange.Text = slideIndexInPresentation.ToString();
+                        shape.TextFrame.TextRange.Font.Size = 8;
+                        shape.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SlideNumberColor);
+                        shape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
+                        shape.TextFrame.TextRange.ParagraphFormat.Alignment = PowerPoint.PpParagraphAlignment.ppAlignCenter;
+                        shape.TextFrame.VerticalAnchor = Office.MsoVerticalAnchor.msoAnchorMiddle;
+                        shape.TextFrame.MarginLeft = 0;
+                        shape.TextFrame.MarginRight = 0;
+                        shape.TextFrame.MarginTop = 0;
+                        shape.TextFrame.MarginBottom = 0;
+                    }
+                    
                     circleX += circleSize + circleSpacing;
                 }
 

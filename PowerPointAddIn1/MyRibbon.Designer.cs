@@ -205,7 +205,6 @@ namespace PowerPointAddIn1
             // 
             this.btnNavBarSetting.Label = "Customize Nav Bar";
             this.btnNavBarSetting.Name = "btnNavBarSetting";
-            this.btnNavBarSetting.Visible = true;
             this.btnNavBarSetting.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnNavBarSettings_Click);
             // 
             // MyRibbon

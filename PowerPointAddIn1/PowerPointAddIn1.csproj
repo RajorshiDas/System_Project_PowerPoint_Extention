@@ -197,6 +197,9 @@
     <EmbeddedResource Include="MyRibbon.resx">
       <DependentUpon>MyRibbon.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="NavBarColorSettings.resx">
+      <DependentUpon>NavBarColorSettings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

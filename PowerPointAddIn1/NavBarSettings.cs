@@ -6,6 +6,12 @@ namespace PowerPointAddIn1
     [Serializable]
     public class NavBarSettings
     {
+        public enum ShapeType
+        {
+            Circle,
+            Square
+        }
+
         public Color BackgroundColor { get; set; } = Color.Black;
         public Color SectionNameColor { get; set; } = Color.White;
         public Color CurrentSlideColor { get; set; } = Color.White;
@@ -13,6 +19,11 @@ namespace PowerPointAddIn1
         public Color SameSubsectionFillColor { get; set; } = Color.Black;
         public Color OtherSlidesBorderColor { get; set; } = Color.White;
         public float SubsectionBoxTransparency { get; set; } = 0.3f;
+        
+        // Shape customization
+        public ShapeType SlideShapeType { get; set; } = ShapeType.Circle;
+        public bool ShowSlideNumbers { get; set; } = true;
+        public Color SlideNumberColor { get; set; } = Color.White;
 
         public Color[] SubsectionBoxColors { get; set; } = new Color[]
         {
@@ -35,6 +46,9 @@ namespace PowerPointAddIn1
             SameSubsectionFillColor = Color.Black;
             OtherSlidesBorderColor = Color.White;
             SubsectionBoxTransparency = 0.3f;
+            SlideShapeType = ShapeType.Circle;
+            ShowSlideNumbers = true;
+            SlideNumberColor = Color.White;
             SubsectionBoxColors = new Color[]
             {
                 Color.SteelBlue,
