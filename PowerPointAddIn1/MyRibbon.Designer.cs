@@ -51,16 +51,20 @@ namespace PowerPointAddIn1
             this.btnCreateSubsection = this.Factory.CreateRibbonButton();
             this.SubSectionEnd = this.Factory.CreateRibbonEditBox();
             this.valueSubsectionName = this.Factory.CreateRibbonLabel();
-            this.group3 = this.Factory.CreateRibbonGroup();
+            this.NavbarGruop = this.Factory.CreateRibbonGroup();
             this.btnCreateNav = this.Factory.CreateRibbonButton();
             this.btnRefreshNav = this.Factory.CreateRibbonButton();
             this.btnRemoveNav = this.Factory.CreateRibbonButton();
             this.btnNavBarSetting = this.Factory.CreateRibbonButton();
+            this.group4 = this.Factory.CreateRibbonGroup();
+            this.btnZoomToArea = this.Factory.CreateRibbonButton();
+            this.btnZoomSettings = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.grpMyTools.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
-            this.group3.SuspendLayout();
+            this.NavbarGruop.SuspendLayout();
+            this.group4.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab1
@@ -69,7 +73,8 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.grpMyTools);
             this.tab1.Groups.Add(this.group1);
             this.tab1.Groups.Add(this.group2);
-            this.tab1.Groups.Add(this.group3);
+            this.tab1.Groups.Add(this.NavbarGruop);
+            this.tab1.Groups.Add(this.group4);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
             // 
@@ -174,14 +179,14 @@ namespace PowerPointAddIn1
             this.valueSubsectionName.Label = "Value";
             this.valueSubsectionName.Name = "valueSubsectionName";
             // 
-            // group3
+            // NavbarGruop
             // 
-            this.group3.Items.Add(this.btnCreateNav);
-            this.group3.Items.Add(this.btnRefreshNav);
-            this.group3.Items.Add(this.btnRemoveNav);
-            this.group3.Items.Add(this.btnNavBarSetting);
-            this.group3.Label = "group3";
-            this.group3.Name = "group3";
+            this.NavbarGruop.Items.Add(this.btnCreateNav);
+            this.NavbarGruop.Items.Add(this.btnRefreshNav);
+            this.NavbarGruop.Items.Add(this.btnRemoveNav);
+            this.NavbarGruop.Items.Add(this.btnNavBarSetting);
+            this.NavbarGruop.Label = "Navigation Bar";
+            this.NavbarGruop.Name = "NavbarGruop";
             // 
             // btnCreateNav
             // 
@@ -207,6 +212,25 @@ namespace PowerPointAddIn1
             this.btnNavBarSetting.Name = "btnNavBarSetting";
             this.btnNavBarSetting.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnNavBarSettings_Click);
             // 
+            // group4
+            // 
+            this.group4.Items.Add(this.btnZoomToArea);
+            this.group4.Items.Add(this.btnZoomSettings);
+            this.group4.Label = "Zoom Lab";
+            this.group4.Name = "group4";
+            // 
+            // btnZoomToArea
+            // 
+            this.btnZoomToArea.Label = "Zoom to Area";
+            this.btnZoomToArea.Name = "btnZoomToArea";
+            this.btnZoomToArea.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button2_Click_2);
+            // 
+            // btnZoomSettings
+            // 
+            this.btnZoomSettings.Label = "Zoom Settings";
+            this.btnZoomSettings.Name = "btnZoomSettings";
+            this.btnZoomSettings.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnZoomSettings_Click_1);
+            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -221,8 +245,10 @@ namespace PowerPointAddIn1
             this.group1.PerformLayout();
             this.group2.ResumeLayout(false);
             this.group2.PerformLayout();
-            this.group3.ResumeLayout(false);
-            this.group3.PerformLayout();
+            this.NavbarGruop.ResumeLayout(false);
+            this.NavbarGruop.PerformLayout();
+            this.group4.ResumeLayout(false);
+            this.group4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -244,12 +270,15 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSubsectionName;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnCreateSubsection;
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel valueSubsectionName;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup NavbarGruop;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnCreateNav;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnRefreshNav;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnRemoveNav;
         internal Microsoft.Office.Tools.Ribbon.RibbonEditBox SubSectionStart;
         internal Microsoft.Office.Tools.Ribbon.RibbonEditBox SubSectionEnd;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnNavBarSetting;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group4;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnZoomToArea;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnZoomSettings;
     }
 }

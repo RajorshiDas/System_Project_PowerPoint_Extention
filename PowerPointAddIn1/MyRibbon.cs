@@ -835,5 +835,34 @@ namespace PowerPointAddIn1
                 }
             }
         }
+
+    
+     
+
+        private void button2_Click_2(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                ZoomLabService.ZoomToArea(Globals.ThisAddIn.Application);
+                MessageBox.Show("Zoom animation slide created successfully!",
+                    "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error creating zoom animation: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnZoomSettings_Click_1(object sender, RibbonControlEventArgs e)
+        {
+            ZoomLabSettings settings = ZoomLabService.Settings;
+
+            settings.SeparateSlides = !settings.SeparateSlides;
+
+            string state = settings.SeparateSlides ? "ON" : "OFF";
+            MessageBox.Show($"Separate Slides Mode: {state}",
+                "Zoom Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 }
