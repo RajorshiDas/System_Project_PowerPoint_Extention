@@ -17,21 +17,33 @@ namespace PowerPointAddIn1
             set { _settings = value; }
         }
 
-        public static void ZoomToArea(PowerPoint.Application app)
+        public static bool ZoomToArea(PowerPoint.Application app)
         {
             try
             {
                 List<RectF> rectangles = GetSelectedRectangles(app);
                 if (rectangles.Count == 0)
                 {
-                    return;
+                    MessageBox.Show(
+                        "No valid zoom areas found.\r\n\r\n" +
+                        "How to use:\r\n" +
+                        "1) Draw one or more rectangle shapes over the areas you want to zoom into.\r\n" +
+                        "2) Select those shapes (Shift+Click for multiple).\r\n" +
+                        "3) Click Zoom to Area.",
+                        "Zoom to Area",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+
+                    return false;
                 }
 
                 ZoomMath.BuildSingleAnimationSlide(app, rectangles);
+                return true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message, "Zoom to Area", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
         }
 
@@ -56,14 +68,26 @@ namespace PowerPointAddIn1
                 }
                 catch
                 {
-                    MessageBox.Show("Could not read ShapeRange. Try selecting the shape again.", "Zoom to Area");
-                    return result;
+                    try
+                    {
+                        range = sel.ChildShapeRange;
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Could not read ShapeRange. Try selecting the shape again.", "Zoom to Area");
+                        return result;
+                    }
                 }
             }
             else if (sel.Type == PowerPoint.PpSelectionType.ppSelectionText)
             {
-                // User clicked inside a text box — get the parent shape
-                try
+                    PowerPoint.Shape parentShape = sel.ShapeRange.Count > 0 ? sel.ShapeRange[1] : null;
+                    if (parentShape == null)
+                    {
+                        PowerPoint.TextRange textRange = sel.TextRange;
+                        parentShape = textRange.Parent.Parent;
+                    }
+
                 {
                     PowerPoint.TextRange textRange = sel.TextRange;
                     PowerPoint.Shape parentShape = textRange.Parent.Parent;
