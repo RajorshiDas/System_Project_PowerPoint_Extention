@@ -53,9 +53,9 @@ namespace PowerPointAddIn1
                     {
                         PowerPoint.Shape bodyShape = newSlide.Shapes[2];
                         bodyShape.TextFrame.TextRange.Text = "This is the body text of the new slide.\n\n" +
-                            "• Bullet point 1\n" +
-                            "• Bullet point 2\n" +
-                            "• Bullet point 3";
+                            "â€¢ Bullet point 1\n" +
+                            "â€¢ Bullet point 2\n" +
+                            "â€¢ Bullet point 3";
                     }
                     
                     // Optional: Make the new slide the active slide
@@ -843,9 +843,12 @@ namespace PowerPointAddIn1
         {
             try
             {
-                ZoomLabService.ZoomToArea(Globals.ThisAddIn.Application);
-                MessageBox.Show("Zoom animation slide created successfully!",
-                    "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                bool created = ZoomLabService.ZoomToArea(Globals.ThisAddIn.Application);
+                if (created)
+                {
+                    MessageBox.Show("Zoom animation slide created successfully!",
+                        "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
             catch (Exception ex)
             {

@@ -91,7 +91,7 @@ namespace PowerPointAddIn1
             float dx = toX - fromX;
             float dy = toY - fromY;
 
-            // (MsoAnimEffect)47 = msoAnimEffectPathCustom — not exposed in older interop assemblies
+            // (MsoAnimEffect)47 = msoAnimEffectPathCustom â€” not exposed in older interop assemblies
             PowerPoint.Effect fx = seq.AddEffect(
                 picture,
                 (PowerPoint.MsoAnimEffect)47,
@@ -248,7 +248,7 @@ namespace PowerPointAddIn1
             PowerPoint.Sequence seq = slide.TimeLine.MainSequence;
 
             // --- Zoom (Grow/Shrink) ---
-            float scalePct = (toPose.Scale / fromPose.Scale) * 100f;
+            float scalePct = ((toPose.Scale / fromPose.Scale) - 1f) * 100f;
 
             PowerPoint.Effect zoomFx = seq.AddEffect(
                 shape,
