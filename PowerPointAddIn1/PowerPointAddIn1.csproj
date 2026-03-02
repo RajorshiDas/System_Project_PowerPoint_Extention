@@ -178,8 +178,6 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="ZoomAnimTour.cs" />
-    <Compile Include="ZoomSelection.cs" />
     <Compile Include="NavBarColorSettings.cs">
       <SubType>Form</SubType>
     </Compile>

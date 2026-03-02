@@ -54,32 +54,33 @@ namespace PowerPointAddIn1
             this.btnRefreshNav = this.Factory.CreateRibbonButton();
             this.btnRemoveNav = this.Factory.CreateRibbonButton();
             this.btnNavBarSetting = this.Factory.CreateRibbonButton();
+            this.linkbtn = this.Factory.CreateRibbonButton();
+            this.removelinkbtn = this.Factory.CreateRibbonButton();
             this.ZoomGroup = this.Factory.CreateRibbonGroup();
-            this.btnBuildZoomTour = this.Factory.CreateRibbonButton();
-            this.btnSelectShapes = this.Factory.CreateRibbonButton();
             this.effectGruop = this.Factory.CreateRibbonGroup();
             this.effectsplitbtn = this.Factory.CreateRibbonSplitButton();
             this.focusMenu = this.Factory.CreateRibbonMenu();
+            this.button1 = this.Factory.CreateRibbonButton();
             this.spotlightMenu = this.Factory.CreateRibbonMenu();
+            this.createspotlightbtn = this.Factory.CreateRibbonButton();
+            this.spotlightSettingsBtn = this.Factory.CreateRibbonButton();
             this.blurMenu = this.Factory.CreateRibbonMenu();
+            this.blureffectbtn1 = this.Factory.CreateRibbonButton();
+            this.blureffectbtn2 = this.Factory.CreateRibbonButton();
+            this.blureffectbtn3 = this.Factory.CreateRibbonButton();
+            this.blureffectbtn4 = this.Factory.CreateRibbonButton();
             this.MagnifyingGlassMenu = this.Factory.CreateRibbonMenu();
+            this.magniaddbtn = this.Factory.CreateRibbonButton();
+            this.magsetingsbtn = this.Factory.CreateRibbonButton();
             this.selectEffecctdtn = this.Factory.CreateRibbonButton();
             this.hyperlinkgroup = this.Factory.CreateRibbonGroup();
             this.SlideNobox = this.Factory.CreateRibbonEditBox();
             this.crtHypBtn = this.Factory.CreateRibbonButton();
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
             this.selecthypbtn = this.Factory.CreateRibbonButton();
-            this.button1 = this.Factory.CreateRibbonButton();
-            this.createspotlightbtn = this.Factory.CreateRibbonButton();
-            this.spotlightSettingsBtn = this.Factory.CreateRibbonButton();
-            this.blureffectbtn1 = this.Factory.CreateRibbonButton();
-            this.blureffectbtn2 = this.Factory.CreateRibbonButton();
-            this.blureffectbtn3 = this.Factory.CreateRibbonButton();
-            this.blureffectbtn4 = this.Factory.CreateRibbonButton();
-            this.magniaddbtn = this.Factory.CreateRibbonButton();
-            this.magsetingsbtn = this.Factory.CreateRibbonButton();
-            this.button2 = this.Factory.CreateRibbonButton();
-            this.button3 = this.Factory.CreateRibbonButton();
+            this.zoomaddbtn = this.Factory.CreateRibbonButton();
+            this.selectzoombtn = this.Factory.CreateRibbonButton();
+            this.createzoombtn = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
@@ -187,8 +188,8 @@ namespace PowerPointAddIn1
             this.NavbarGruop.Items.Add(this.btnRefreshNav);
             this.NavbarGruop.Items.Add(this.btnRemoveNav);
             this.NavbarGruop.Items.Add(this.btnNavBarSetting);
-            this.NavbarGruop.Items.Add(this.button2);
-            this.NavbarGruop.Items.Add(this.button3);
+            this.NavbarGruop.Items.Add(this.linkbtn);
+            this.NavbarGruop.Items.Add(this.removelinkbtn);
             this.NavbarGruop.Label = "Navigation Bar";
             this.NavbarGruop.Name = "NavbarGruop";
             // 
@@ -216,24 +217,24 @@ namespace PowerPointAddIn1
             this.btnNavBarSetting.Name = "btnNavBarSetting";
             this.btnNavBarSetting.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnNavBarSettings_Click);
             // 
+            // linkbtn
+            // 
+            this.linkbtn.Label = "Add Link";
+            this.linkbtn.Name = "linkbtn";
+            this.linkbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.linkbtn_Click);
+            // 
+            // removelinkbtn
+            // 
+            this.removelinkbtn.Label = "Remove Link";
+            this.removelinkbtn.Name = "removelinkbtn";
+            // 
             // ZoomGroup
             // 
-            this.ZoomGroup.Items.Add(this.btnBuildZoomTour);
-            this.ZoomGroup.Items.Add(this.btnSelectShapes);
+            this.ZoomGroup.Items.Add(this.zoomaddbtn);
+            this.ZoomGroup.Items.Add(this.selectzoombtn);
+            this.ZoomGroup.Items.Add(this.createzoombtn);
             this.ZoomGroup.Label = "Zoom Features";
             this.ZoomGroup.Name = "ZoomGroup";
-            // 
-            // btnBuildZoomTour
-            // 
-            this.btnBuildZoomTour.Label = "Build Zoom Tour";
-            this.btnBuildZoomTour.Name = "btnBuildZoomTour";
-            this.btnBuildZoomTour.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnBuildZoomTour_Click);
-            // 
-            // btnSelectShapes
-            // 
-            this.btnSelectShapes.Label = "Select Zoom Areas";
-            this.btnSelectShapes.Name = "btnSelectShapes";
-            this.btnSelectShapes.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnSelectShapes_Click);
             // 
             // effectGruop
             // 
@@ -251,6 +252,7 @@ namespace PowerPointAddIn1
             this.effectsplitbtn.Items.Add(this.MagnifyingGlassMenu);
             this.effectsplitbtn.Label = "Effects Menu";
             this.effectsplitbtn.Name = "effectsplitbtn";
+            this.effectsplitbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.effectsplitbtn_Click);
             // 
             // focusMenu
             // 
@@ -260,6 +262,12 @@ namespace PowerPointAddIn1
             this.focusMenu.Name = "focusMenu";
             this.focusMenu.ShowImage = true;
             // 
+            // button1
+            // 
+            this.button1.Label = "Add Focus";
+            this.button1.Name = "button1";
+            this.button1.ShowImage = true;
+            // 
             // spotlightMenu
             // 
             this.spotlightMenu.Image = ((System.Drawing.Image)(resources.GetObject("spotlightMenu.Image")));
@@ -268,72 +276,6 @@ namespace PowerPointAddIn1
             this.spotlightMenu.Label = "Spotlight";
             this.spotlightMenu.Name = "spotlightMenu";
             this.spotlightMenu.ShowImage = true;
-            // 
-            // blurMenu
-            // 
-            this.blurMenu.Image = ((System.Drawing.Image)(resources.GetObject("blurMenu.Image")));
-            this.blurMenu.Items.Add(this.blureffectbtn1);
-            this.blurMenu.Items.Add(this.blureffectbtn2);
-            this.blurMenu.Items.Add(this.blureffectbtn3);
-            this.blurMenu.Items.Add(this.blureffectbtn4);
-            this.blurMenu.Label = "Blur";
-            this.blurMenu.Name = "blurMenu";
-            this.blurMenu.ShowImage = true;
-            // 
-            // MagnifyingGlassMenu
-            // 
-            this.MagnifyingGlassMenu.Image = ((System.Drawing.Image)(resources.GetObject("MagnifyingGlassMenu.Image")));
-            this.MagnifyingGlassMenu.Items.Add(this.magniaddbtn);
-            this.MagnifyingGlassMenu.Items.Add(this.magsetingsbtn);
-            this.MagnifyingGlassMenu.Label = "Magnifying Glass";
-            this.MagnifyingGlassMenu.Name = "MagnifyingGlassMenu";
-            this.MagnifyingGlassMenu.ShowImage = true;
-            // 
-            // selectEffecctdtn
-            // 
-            this.selectEffecctdtn.Image = ((System.Drawing.Image)(resources.GetObject("selectEffecctdtn.Image")));
-            this.selectEffecctdtn.Label = "Select Effect Areas";
-            this.selectEffecctdtn.Name = "selectEffecctdtn";
-            this.selectEffecctdtn.ShowImage = true;
-            // 
-            // hyperlinkgroup
-            // 
-            this.hyperlinkgroup.Items.Add(this.SlideNobox);
-            this.hyperlinkgroup.Items.Add(this.crtHypBtn);
-            this.hyperlinkgroup.Items.Add(this.rmvHypbtn);
-            this.hyperlinkgroup.Items.Add(this.selecthypbtn);
-            this.hyperlinkgroup.Label = "Hyper Link";
-            this.hyperlinkgroup.Name = "hyperlinkgroup";
-            // 
-            // SlideNobox
-            // 
-            this.SlideNobox.Label = "Slide No :";
-            this.SlideNobox.Name = "SlideNobox";
-            // 
-            // crtHypBtn
-            // 
-            this.crtHypBtn.Image = ((System.Drawing.Image)(resources.GetObject("crtHypBtn.Image")));
-            this.crtHypBtn.Label = "Create Hyperlink";
-            this.crtHypBtn.Name = "crtHypBtn";
-            this.crtHypBtn.ShowImage = true;
-            // 
-            // rmvHypbtn
-            // 
-            this.rmvHypbtn.Image = ((System.Drawing.Image)(resources.GetObject("rmvHypbtn.Image")));
-            this.rmvHypbtn.Label = "Remove Hyperlink";
-            this.rmvHypbtn.Name = "rmvHypbtn";
-            this.rmvHypbtn.ShowImage = true;
-            // 
-            // selecthypbtn
-            // 
-            this.selecthypbtn.Label = "Select";
-            this.selecthypbtn.Name = "selecthypbtn";
-            // 
-            // button1
-            // 
-            this.button1.Label = "Add Focus";
-            this.button1.Name = "button1";
-            this.button1.ShowImage = true;
             // 
             // createspotlightbtn
             // 
@@ -346,6 +288,17 @@ namespace PowerPointAddIn1
             this.spotlightSettingsBtn.Label = "Settings";
             this.spotlightSettingsBtn.Name = "spotlightSettingsBtn";
             this.spotlightSettingsBtn.ShowImage = true;
+            // 
+            // blurMenu
+            // 
+            this.blurMenu.Image = ((System.Drawing.Image)(resources.GetObject("blurMenu.Image")));
+            this.blurMenu.Items.Add(this.blureffectbtn1);
+            this.blurMenu.Items.Add(this.blureffectbtn2);
+            this.blurMenu.Items.Add(this.blureffectbtn3);
+            this.blurMenu.Items.Add(this.blureffectbtn4);
+            this.blurMenu.Label = "Blur";
+            this.blurMenu.Name = "blurMenu";
+            this.blurMenu.ShowImage = true;
             // 
             // blureffectbtn1
             // 
@@ -371,6 +324,15 @@ namespace PowerPointAddIn1
             this.blureffectbtn4.Name = "blureffectbtn4";
             this.blureffectbtn4.ShowImage = true;
             // 
+            // MagnifyingGlassMenu
+            // 
+            this.MagnifyingGlassMenu.Image = ((System.Drawing.Image)(resources.GetObject("MagnifyingGlassMenu.Image")));
+            this.MagnifyingGlassMenu.Items.Add(this.magniaddbtn);
+            this.MagnifyingGlassMenu.Items.Add(this.magsetingsbtn);
+            this.MagnifyingGlassMenu.Label = "Magnifying Glass";
+            this.MagnifyingGlassMenu.Name = "MagnifyingGlassMenu";
+            this.MagnifyingGlassMenu.ShowImage = true;
+            // 
             // magniaddbtn
             // 
             this.magniaddbtn.Label = "Add Effect";
@@ -383,15 +345,67 @@ namespace PowerPointAddIn1
             this.magsetingsbtn.Name = "magsetingsbtn";
             this.magsetingsbtn.ShowImage = true;
             // 
-            // button2
+            // selectEffecctdtn
             // 
-            this.button2.Label = "button2";
-            this.button2.Name = "button2";
+            this.selectEffecctdtn.Image = ((System.Drawing.Image)(resources.GetObject("selectEffecctdtn.Image")));
+            this.selectEffecctdtn.Label = "Select Effect Areas";
+            this.selectEffecctdtn.Name = "selectEffecctdtn";
+            this.selectEffecctdtn.ShowImage = true;
             // 
-            // button3
+            // hyperlinkgroup
             // 
-            this.button3.Label = "button3";
-            this.button3.Name = "button3";
+            this.hyperlinkgroup.Items.Add(this.SlideNobox);
+            this.hyperlinkgroup.Items.Add(this.crtHypBtn);
+            this.hyperlinkgroup.Items.Add(this.rmvHypbtn);
+            this.hyperlinkgroup.Items.Add(this.selecthypbtn);
+            this.hyperlinkgroup.Label = "Hyper Link";
+            this.hyperlinkgroup.Name = "hyperlinkgroup";
+            // 
+            // SlideNobox
+            // 
+            this.SlideNobox.Label = "Slide No :";
+            this.SlideNobox.Name = "SlideNobox";
+            this.SlideNobox.Text = null;
+            // 
+            // crtHypBtn
+            // 
+            this.crtHypBtn.Image = ((System.Drawing.Image)(resources.GetObject("crtHypBtn.Image")));
+            this.crtHypBtn.Label = "Create Hyperlink";
+            this.crtHypBtn.Name = "crtHypBtn";
+            this.crtHypBtn.ShowImage = true;
+            // 
+            // rmvHypbtn
+            // 
+            this.rmvHypbtn.Image = ((System.Drawing.Image)(resources.GetObject("rmvHypbtn.Image")));
+            this.rmvHypbtn.Label = "Remove Hyperlink";
+            this.rmvHypbtn.Name = "rmvHypbtn";
+            this.rmvHypbtn.ShowImage = true;
+            // 
+            // selecthypbtn
+            // 
+            this.selecthypbtn.Label = "Select";
+            this.selecthypbtn.Name = "selecthypbtn";
+            // 
+            // zoomaddbtn
+            // 
+            this.zoomaddbtn.Image = ((System.Drawing.Image)(resources.GetObject("zoomaddbtn.Image")));
+            this.zoomaddbtn.Label = "Zoom  Add";
+            this.zoomaddbtn.Name = "zoomaddbtn";
+            this.zoomaddbtn.ShowImage = true;
+            // 
+            // selectzoombtn
+            // 
+            this.selectzoombtn.Image = ((System.Drawing.Image)(resources.GetObject("selectzoombtn.Image")));
+            this.selectzoombtn.Label = "Select Area";
+            this.selectzoombtn.Name = "selectzoombtn";
+            this.selectzoombtn.ShowImage = true;
+            // 
+            // createzoombtn
+            // 
+            this.createzoombtn.Image = ((System.Drawing.Image)(resources.GetObject("createzoombtn.Image")));
+            this.createzoombtn.Label = "Create";
+            this.createzoombtn.Name = "createzoombtn";
+            this.createzoombtn.ShowImage = true;
             // 
             // MyRibbon
             // 
@@ -440,8 +454,6 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnNavBarSetting;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup ZoomGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup effectGruop;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnBuildZoomTour;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnSelectShapes;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton effectsplitbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonMenu focusMenu;
         internal Microsoft.Office.Tools.Ribbon.RibbonMenu spotlightMenu;
@@ -462,7 +474,10 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blureffectbtn4;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton magniaddbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton magsetingsbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button2;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton linkbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton removelinkbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton zoomaddbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton selectzoombtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton createzoombtn;
     }
 }

@@ -734,33 +734,20 @@ namespace PowerPointAddIn1
         }
 
 
-        private void btnBuildZoomTour_Click(object sender, RibbonControlEventArgs e)
-        {
-            try
-            {
-                ZoomAnimTour.Build(Globals.ThisAddIn.Application);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.Message, "Build Zoom Tour");
-            }
-
-        }
-
+      
        
 
-        private void btnSelectShapes_Click(object sender, RibbonControlEventArgs e)
+     
+
+        private void effectsplitbtn_Click(object sender, RibbonControlEventArgs e)
         {
-            try
-            {
-                ZoomSelection.SelectZoomAreas(Globals.ThisAddIn.Application);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.Message, "Select Zoom Areas");
-            }
+
         }
 
+        private void linkbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
     }
 }
         
