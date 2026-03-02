@@ -178,6 +178,8 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="ZoomAnimTour.cs" />
+    <Compile Include="ZoomSelection.cs" />
     <Compile Include="NavBarColorSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -194,8 +196,6 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ZoomLabService.cs" />
-    <Compile Include="ZoomMath.cs" />
     <EmbeddedResource Include="MyRibbon.resx">
       <DependentUpon>MyRibbon.cs</DependentUpon>
     </EmbeddedResource>
@@ -232,6 +232,7 @@
     </Compile>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

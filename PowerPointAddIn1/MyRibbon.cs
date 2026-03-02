@@ -22,106 +22,6 @@ namespace PowerPointAddIn1
             UpdateSectionInfo();
         }
 
-        private void btnAddSlide_Click(object sender, RibbonControlEventArgs e)
-        {
-            try
-            {
-                // Get the active PowerPoint application
-                PowerPoint.Application app = Globals.ThisAddIn.Application;
-                
-                // Get the active presentation
-                PowerPoint.Presentation presentation = app.ActivePresentation;
-                
-                if (presentation != null)
-                {
-                    // Get the slides collection
-                    PowerPoint.Slides slides = presentation.Slides;
-                    
-                    // Add a new slide with Title and Content layout (layout index 2)
-                    // Index = slides.Count + 1 to add at the end
-                    PowerPoint.Slide newSlide = slides.Add(
-                        slides.Count + 1, 
-                        PowerPoint.PpSlideLayout.ppLayoutText);
-                    
-                    // Add title text
-                    PowerPoint.Shape titleShape = newSlide.Shapes.Title;
-                    titleShape.TextFrame.TextRange.Text = "New Slide Title";
-                    
-                    // Add body text to the content placeholder
-                    // The second shape (index 2) is typically the content placeholder
-                    if (newSlide.Shapes.Count > 1)
-                    {
-                        PowerPoint.Shape bodyShape = newSlide.Shapes[2];
-                        bodyShape.TextFrame.TextRange.Text = "This is the body text of the new slide.\n\n" +
-                            "• Bullet point 1\n" +
-                            "• Bullet point 2\n" +
-                            "• Bullet point 3";
-                    }
-                    
-                    // Optional: Make the new slide the active slide
-                    newSlide.Select();
-                    
-                    MessageBox.Show(
-                        "New slide added successfully!", 
-                        "Add Slide", 
-                        MessageBoxButtons.OK, 
-                        MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show(
-                        "Please open a presentation first.", 
-                        "No Presentation", 
-                        MessageBoxButtons.OK, 
-                        MessageBoxIcon.Warning);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Error adding slide: " + ex.Message, 
-                    "Error", 
-                    MessageBoxButtons.OK, 
-                    MessageBoxIcon.Error);
-            }
-        }
-
-        private void button1_Click(object sender, RibbonControlEventArgs e)
-        {
-            try
-            {
-                PowerPoint.Application app = Globals.ThisAddIn.Application;
-                PowerPoint.Selection selection = app.ActiveWindow.Selection;
-
-                if (selection.Type == PowerPoint.PpSelectionType.ppSelectionText)
-                {
-                    PowerPoint.TextRange textRange = selection.TextRange;
-                    textRange.InsertAfter("Hello World");
-                }
-                else
-                {
-                    MessageBox.Show(
-                        "Please place your cursor in a text box first.",
-                        "No Text Selected",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Error inserting text: " + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-        }
-
-        private void editBox1_TextChanged(object sender, RibbonControlEventArgs e)
-        {
-
-        }
-
         private void UpdateSectionInfo()
         {
             try
@@ -818,10 +718,7 @@ namespace PowerPointAddIn1
 
         }
 
-        private void button2_Click(object sender, RibbonControlEventArgs e)
-        {
-
-        }
+       
 
         private void btnNavBarSettings_Click(object sender, RibbonControlEventArgs e)
         {
@@ -836,36 +733,34 @@ namespace PowerPointAddIn1
             }
         }
 
-    
-     
 
-        private void button2_Click_2(object sender, RibbonControlEventArgs e)
+        private void btnBuildZoomTour_Click(object sender, RibbonControlEventArgs e)
         {
             try
             {
-                bool created = ZoomLabService.ZoomToArea(Globals.ThisAddIn.Application);
-                if (created)
-                {
-                    MessageBox.Show("Zoom animation slide created successfully!",
-                        "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                ZoomAnimTour.Build(Globals.ThisAddIn.Application);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error creating zoom animation: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Windows.Forms.MessageBox.Show(ex.Message, "Build Zoom Tour");
+            }
+
+        }
+
+       
+
+        private void btnSelectShapes_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                ZoomSelection.SelectZoomAreas(Globals.ThisAddIn.Application);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message, "Select Zoom Areas");
             }
         }
 
-        private void btnZoomSettings_Click_1(object sender, RibbonControlEventArgs e)
-        {
-            ZoomLabSettings settings = ZoomLabService.Settings;
-
-            settings.SeparateSlides = !settings.SeparateSlides;
-
-            string state = settings.SeparateSlides ? "ON" : "OFF";
-            MessageBox.Show($"Separate Slides Mode: {state}",
-                "Zoom Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
     }
 }
+        
