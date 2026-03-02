@@ -27,8 +27,10 @@ namespace PowerPointAddIn1
             try
             {
                 PowerPoint.Application app = Globals.ThisAddIn.Application;
-                
-                if (app.ActivePresentation == null)
+
+                // ActivePresentation throws a COM exception when no file is open,
+                // so check Presentations.Count first to avoid that.
+                if (app.Presentations.Count == 0)
                 {
                     lblTotalValue.Label = "N/A";
                     lblSectionValue.Label = "N/A";
@@ -114,6 +116,18 @@ namespace PowerPointAddIn1
             }
             catch (Exception ex)
             {
+                // If there is simply no active presentation (e.g. at startup),
+                // reset labels quietly without showing an error dialog.
+                if (ex.Message.IndexOf("no active presentation", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    ex.Message.IndexOf("Invalid request", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    lblTotalValue.Label = "N/A";
+                    lblSectionValue.Label = "N/A";
+                    lblSlideValue.Label = "N/A";
+                    valueSubsectionName.Label = "N/A";
+                    return;
+                }
+
                 lblTotalValue.Label = "Error";
                 lblSectionValue.Label = "Error";
                 lblSlideValue.Label = "Error";
