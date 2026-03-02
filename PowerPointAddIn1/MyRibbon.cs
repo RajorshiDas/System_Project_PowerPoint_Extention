@@ -748,6 +748,36 @@ namespace PowerPointAddIn1
         {
 
         }
+
+        private void selectzoombtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { ZoomFeature.SelectZoom(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Select Zoom error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void zoomaddbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { ZoomFeature.ZoomAdd(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Zoom Add error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void createzoombtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { ZoomFeature.Create(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Create error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
         
