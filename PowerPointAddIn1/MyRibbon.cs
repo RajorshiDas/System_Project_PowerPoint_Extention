@@ -822,6 +822,26 @@ namespace PowerPointAddIn1
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void magniaddbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { MagnifyFeature.AddMagnify(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Magnify error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void magsetingsbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { MagnifyFeature.ShowSettings(); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Settings error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
         

@@ -68,10 +68,6 @@ namespace PowerPointAddIn1
             this.createspotlightbtn = this.Factory.CreateRibbonButton();
             this.spotlightSettingsBtn = this.Factory.CreateRibbonButton();
             this.blurMenu = this.Factory.CreateRibbonMenu();
-            this.blureffectbtn1 = this.Factory.CreateRibbonButton();
-            this.blureffectbtn2 = this.Factory.CreateRibbonButton();
-            this.blureffectbtn3 = this.Factory.CreateRibbonButton();
-            this.blureffectbtn4 = this.Factory.CreateRibbonButton();
             this.MagnifyingGlassMenu = this.Factory.CreateRibbonMenu();
             this.magniaddbtn = this.Factory.CreateRibbonButton();
             this.magsetingsbtn = this.Factory.CreateRibbonButton();
@@ -330,37 +326,9 @@ namespace PowerPointAddIn1
             // blurMenu
             // 
             this.blurMenu.Image = ((System.Drawing.Image)(resources.GetObject("blurMenu.Image")));
-            this.blurMenu.Items.Add(this.blureffectbtn1);
-            this.blurMenu.Items.Add(this.blureffectbtn2);
-            this.blurMenu.Items.Add(this.blureffectbtn3);
-            this.blurMenu.Items.Add(this.blureffectbtn4);
             this.blurMenu.Label = "Blur";
             this.blurMenu.Name = "blurMenu";
             this.blurMenu.ShowImage = true;
-            // 
-            // blureffectbtn1
-            // 
-            this.blureffectbtn1.Label = "30 % Blur";
-            this.blureffectbtn1.Name = "blureffectbtn1";
-            this.blureffectbtn1.ShowImage = true;
-            // 
-            // blureffectbtn2
-            // 
-            this.blureffectbtn2.Label = "50 % Blur";
-            this.blureffectbtn2.Name = "blureffectbtn2";
-            this.blureffectbtn2.ShowImage = true;
-            // 
-            // blureffectbtn3
-            // 
-            this.blureffectbtn3.Label = "80 % Blur";
-            this.blureffectbtn3.Name = "blureffectbtn3";
-            this.blureffectbtn3.ShowImage = true;
-            // 
-            // blureffectbtn4
-            // 
-            this.blureffectbtn4.Label = "100 % Blur";
-            this.blureffectbtn4.Name = "blureffectbtn4";
-            this.blureffectbtn4.ShowImage = true;
             // 
             // MagnifyingGlassMenu
             // 
@@ -376,12 +344,14 @@ namespace PowerPointAddIn1
             this.magniaddbtn.Label = "Add Effect";
             this.magniaddbtn.Name = "magniaddbtn";
             this.magniaddbtn.ShowImage = true;
+            this.magniaddbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.magniaddbtn_Click);
             // 
             // magsetingsbtn
             // 
             this.magsetingsbtn.Label = "Settings";
             this.magsetingsbtn.Name = "magsetingsbtn";
             this.magsetingsbtn.ShowImage = true;
+            this.magsetingsbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.magsetingsbtn_Click);
             // 
             // selectEffecctdtn
             // 
@@ -486,10 +456,6 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton focusbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createspotlightbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton spotlightSettingsBtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton blureffectbtn1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton blureffectbtn2;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton blureffectbtn3;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton blureffectbtn4;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton magniaddbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton magsetingsbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton linkbtn;
