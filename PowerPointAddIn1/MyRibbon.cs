@@ -763,6 +763,36 @@ namespace PowerPointAddIn1
 
         }
 
+        private void selectEffecctdtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { SpotlightFeature.SelectAreas(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Select Effect Areas error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void spotlightSettingsBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { SpotlightFeature.ShowSettings(); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Settings error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void createspotlightbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { SpotlightFeature.CreateSpotlight(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Create Spotlight error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void selectzoombtn_Click(object sender, RibbonControlEventArgs e)
         {
             try { ZoomFeature.SelectZoom(Globals.ThisAddIn.Application); }

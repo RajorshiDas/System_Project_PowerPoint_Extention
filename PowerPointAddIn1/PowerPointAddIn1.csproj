@@ -194,6 +194,10 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SpotlightFeature.cs" />
+    <Compile Include="SpotlightSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ZoomFeature.cs" />
     <EmbeddedResource Include="MyRibbon.resx">
       <DependentUpon>MyRibbon.cs</DependentUpon>

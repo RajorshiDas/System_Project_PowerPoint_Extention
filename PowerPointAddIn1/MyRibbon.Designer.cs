@@ -63,7 +63,7 @@ namespace PowerPointAddIn1
             this.effectGruop = this.Factory.CreateRibbonGroup();
             this.effectsplitbtn = this.Factory.CreateRibbonSplitButton();
             this.focusMenu = this.Factory.CreateRibbonMenu();
-            this.button1 = this.Factory.CreateRibbonButton();
+            this.focusbtn = this.Factory.CreateRibbonButton();
             this.spotlightMenu = this.Factory.CreateRibbonMenu();
             this.createspotlightbtn = this.Factory.CreateRibbonButton();
             this.spotlightSettingsBtn = this.Factory.CreateRibbonButton();
@@ -293,16 +293,16 @@ namespace PowerPointAddIn1
             // focusMenu
             // 
             this.focusMenu.Image = ((System.Drawing.Image)(resources.GetObject("focusMenu.Image")));
-            this.focusMenu.Items.Add(this.button1);
+            this.focusMenu.Items.Add(this.focusbtn);
             this.focusMenu.Label = "Focus";
             this.focusMenu.Name = "focusMenu";
             this.focusMenu.ShowImage = true;
             // 
-            // button1
+            // focusbtn
             // 
-            this.button1.Label = "Add Focus";
-            this.button1.Name = "button1";
-            this.button1.ShowImage = true;
+            this.focusbtn.Label = "Add Focus";
+            this.focusbtn.Name = "focusbtn";
+            this.focusbtn.ShowImage = true;
             // 
             // spotlightMenu
             // 
@@ -318,12 +318,14 @@ namespace PowerPointAddIn1
             this.createspotlightbtn.Label = "Create Spotlight";
             this.createspotlightbtn.Name = "createspotlightbtn";
             this.createspotlightbtn.ShowImage = true;
+            this.createspotlightbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.createspotlightbtn_Click);
             // 
             // spotlightSettingsBtn
             // 
             this.spotlightSettingsBtn.Label = "Settings";
             this.spotlightSettingsBtn.Name = "spotlightSettingsBtn";
             this.spotlightSettingsBtn.ShowImage = true;
+            this.spotlightSettingsBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.spotlightSettingsBtn_Click);
             // 
             // blurMenu
             // 
@@ -387,6 +389,7 @@ namespace PowerPointAddIn1
             this.selectEffecctdtn.Label = "Select Effect Areas";
             this.selectEffecctdtn.Name = "selectEffecctdtn";
             this.selectEffecctdtn.ShowImage = true;
+            this.selectEffecctdtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectEffecctdtn_Click);
             // 
             // hyperlinkgroup
             // 
@@ -480,7 +483,7 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton crtHypBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton rmvHypbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton selecthypbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton focusbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createspotlightbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton spotlightSettingsBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blureffectbtn1;
