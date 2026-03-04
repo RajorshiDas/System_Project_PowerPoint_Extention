@@ -172,6 +172,7 @@ namespace PowerPointAddIn1
             this.SubSectionEnd.Label = "End:";
             this.SubSectionEnd.Name = "SubSectionEnd";
             this.SubSectionEnd.Text = null;
+            this.SubSectionEnd.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SubSectionEnd_TextChanged);
             // 
             // valueSubsectionName
             // 
@@ -235,6 +236,7 @@ namespace PowerPointAddIn1
             this.adjustbtn.Label = "Adjust";
             this.adjustbtn.Name = "adjustbtn";
             this.adjustbtn.ShowImage = true;
+            this.adjustbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.adjustbtn_Click);
             // 
             // ZoomGroup
             // 
@@ -299,6 +301,7 @@ namespace PowerPointAddIn1
             this.focusbtn.Label = "Add Focus";
             this.focusbtn.Name = "focusbtn";
             this.focusbtn.ShowImage = true;
+            this.focusbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.focusbtn_Click);
             // 
             // spotlightMenu
             // 
@@ -375,6 +378,7 @@ namespace PowerPointAddIn1
             this.SlideNobox.Label = "Slide No :";
             this.SlideNobox.Name = "SlideNobox";
             this.SlideNobox.Text = null;
+            this.SlideNobox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SlideNobox_TextChanged);
             // 
             // crtHypBtn
             // 
@@ -382,6 +386,7 @@ namespace PowerPointAddIn1
             this.crtHypBtn.Label = "Create Hyperlink";
             this.crtHypBtn.Name = "crtHypBtn";
             this.crtHypBtn.ShowImage = true;
+            this.crtHypBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.crtHypBtn_Click);
             // 
             // rmvHypbtn
             // 
@@ -389,11 +394,15 @@ namespace PowerPointAddIn1
             this.rmvHypbtn.Label = "Remove Hyperlink";
             this.rmvHypbtn.Name = "rmvHypbtn";
             this.rmvHypbtn.ShowImage = true;
+            this.rmvHypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.rmvHypbtn_Click);
             // 
             // selecthypbtn
             // 
-            this.selecthypbtn.Label = "Select";
+            this.selecthypbtn.Image = ((System.Drawing.Image)(resources.GetObject("selecthypbtn.Image")));
+            this.selecthypbtn.Label = "Select Text or Area";
             this.selecthypbtn.Name = "selecthypbtn";
+            this.selecthypbtn.ShowImage = true;
+            this.selecthypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selecthypbtn_Click);
             // 
             // MyRibbon
             // 

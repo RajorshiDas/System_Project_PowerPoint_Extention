@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Office.Tools.Ribbon;
@@ -11,6 +11,10 @@ namespace PowerPointAddIn1
     {
         // Navigation Bar Customization Settings
         private NavBarSettings navBarSettings = new NavBarSettings();
+
+        // Hyperlink feature state
+        private int _hypSourceSlideIndex = -1;
+        private readonly List<string> _hypShapeNames = new List<string>();
 
         private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
         {
@@ -839,6 +843,257 @@ namespace PowerPointAddIn1
             catch (Exception ex)
             {
                 MessageBox.Show("Settings error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SubSectionEnd_TextChanged(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void adjustbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void focusbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void SlideNobox_TextChanged(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private PowerPoint.Shape FindShapeOnSlide(PowerPoint.Slide slide, string name)
+        {
+            for (int i = 1; i <= slide.Shapes.Count; i++)
+                if (string.Equals(slide.Shapes[i].Name, name, StringComparison.OrdinalIgnoreCase))
+                    return slide.Shapes[i];
+            return null;
+        }
+
+        private void crtHypBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                if (app.Presentations.Count == 0) return;
+
+                var pres = app.ActivePresentation;
+
+                string slideText = SlideNobox.Text.Trim();
+                if (string.IsNullOrEmpty(slideText) || !int.TryParse(slideText, out int targetSlideNum))
+                {
+                    MessageBox.Show("Please enter a valid slide number in the 'Slide No' box.",
+                        "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (targetSlideNum < 1 || targetSlideNum > pres.Slides.Count)
+                {
+                    MessageBox.Show(
+                        $"Slide {targetSlideNum} does not exist. " +
+                        $"The presentation has {pres.Slides.Count} slide(s).",
+                        "Invalid Slide", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Use stored shapes; fall back to current selection if nothing stored
+                List<string> shapeNames = new List<string>(_hypShapeNames);
+                int srcSlideIdx = _hypSourceSlideIndex;
+
+                if (shapeNames.Count == 0)
+                {
+                    var win = app.ActiveWindow;
+                    if (win.Selection != null &&
+                        (win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionShapes ||
+                         win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionText))
+                    {
+                        srcSlideIdx = (win.View.Slide as PowerPoint.Slide).SlideIndex;
+                        var sr = win.Selection.ShapeRange;
+                        for (int i = 1; i <= sr.Count; i++)
+                            shapeNames.Add(sr[i].Name);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "No object stored or selected.\n\n" +
+                            "Select an object then click 'Select Text or Area' first.",
+                            "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                if (srcSlideIdx < 1 || srcSlideIdx > pres.Slides.Count)
+                {
+                    MessageBox.Show("Source slide no longer exists.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var srcSlide    = pres.Slides[srcSlideIdx];
+                var targetSlide = pres.Slides[targetSlideNum];
+
+                // SlideID,SlideIndex,SlideName is the full internal format PowerPoint uses
+                // for "Place in This Document" hyperlinks — most robust across versions.
+                string subAddress = $"{targetSlide.SlideID},{targetSlide.SlideIndex},{targetSlide.Name}";
+
+                int applied = 0;
+                string diagnosticInfo = "";
+                foreach (string shapeName in shapeNames)
+                {
+                    var sh = FindShapeOnSlide(srcSlide, shapeName);
+                    if (sh == null) continue;
+
+                    // Reset click action so the Hyperlink object is clean
+                    var click = sh.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick];
+                    click.Action = PowerPoint.PpActionType.ppActionNone;
+                    click.Action              = PowerPoint.PpActionType.ppActionHyperlink;
+                    click.Hyperlink.Address    = "";
+                    click.Hyperlink.SubAddress = subAddress;
+
+                    // Also clear mouse-over so it cannot interfere
+                    var over = sh.ActionSettings[PowerPoint.PpMouseActivation.ppMouseOver];
+                    over.Action = PowerPoint.PpActionType.ppActionNone;
+
+                    try
+                    {
+                        diagnosticInfo = $"Address='{click.Hyperlink.Address}'  SubAddress='{click.Hyperlink.SubAddress}'";
+                    }
+                    catch { }
+                    applied++;
+                }
+
+                if (applied > 0)
+                    MessageBox.Show(
+                        $"Hyperlink to Slide {targetSlideNum} ('{subAddress}') applied to {applied} object(s).\n\n" +
+                        $"Stored as: {diagnosticInfo}\n\n" +
+                        "⚠ The link only fires during Slide Show (F5) — not in Normal Edit view.",
+                        "Hyperlink Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else
+                    MessageBox.Show(
+                        "Could not find the stored shapes on the slide.\n" +
+                        "Please re-select the object and try again.",
+                        "Shapes Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Create Hyperlink error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void rmvHypbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                if (app.Presentations.Count == 0) return;
+
+                var pres = app.ActivePresentation;
+
+                // Prefer current selection; fall back to stored shapes
+                List<string> shapeNames = new List<string>();
+                int srcSlideIdx = -1;
+
+                var win = app.ActiveWindow;
+                if (win.Selection != null &&
+                    (win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionShapes ||
+                     win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionText))
+                {
+                    srcSlideIdx = (win.View.Slide as PowerPoint.Slide).SlideIndex;
+                    var sr = win.Selection.ShapeRange;
+                    for (int i = 1; i <= sr.Count; i++)
+                        shapeNames.Add(sr[i].Name);
+                }
+                else if (_hypShapeNames.Count > 0)
+                {
+                    shapeNames   = new List<string>(_hypShapeNames);
+                    srcSlideIdx  = _hypSourceSlideIndex;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "No object selected or stored.\n\n" +
+                        "Select an object (or click 'Select Text or Area' first) then try again.",
+                        "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (srcSlideIdx < 1 || srcSlideIdx > pres.Slides.Count) return;
+
+                var srcSlide = pres.Slides[srcSlideIdx];
+                int removed  = 0;
+
+                foreach (string shapeName in shapeNames)
+                {
+                    var sh = FindShapeOnSlide(srcSlide, shapeName);
+                    if (sh == null) continue;
+
+                    var action = sh.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick];
+                    if (action.Action != PowerPoint.PpActionType.ppActionNone)
+                    {
+                        action.Action = PowerPoint.PpActionType.ppActionNone;
+                        removed++;
+                    }
+                }
+
+                MessageBox.Show(
+                    removed > 0
+                        ? $"Hyperlink removed from {removed} object(s)."
+                        : "No hyperlink found on the selected object(s).",
+                    "Remove Hyperlink", MessageBoxButtons.OK,
+                    removed > 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Remove Hyperlink error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void selecthypbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                if (app.Presentations.Count == 0)
+                {
+                    MessageBox.Show("Please open a presentation first.", "No Presentation",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var win = app.ActiveWindow;
+                if (win.Selection == null ||
+                    (win.Selection.Type != PowerPoint.PpSelectionType.ppSelectionShapes &&
+                     win.Selection.Type != PowerPoint.PpSelectionType.ppSelectionText))
+                {
+                    MessageBox.Show(
+                        "Please select a shape, image, text box or object on the slide first.",
+                        "Nothing Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _hypShapeNames.Clear();
+                _hypSourceSlideIndex = (win.View.Slide as PowerPoint.Slide).SlideIndex;
+
+                var sr = win.Selection.ShapeRange;
+                for (int i = 1; i <= sr.Count; i++)
+                    _hypShapeNames.Add(sr[i].Name);
+
+                MessageBox.Show(
+                    $"{_hypShapeNames.Count} object(s) stored from Slide {_hypSourceSlideIndex}.\n\n" +
+                    "• Enter a slide number in the box.\n" +
+                    "• Click 'Create Hyperlink' to apply the link.",
+                    "Selection Stored", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Select error: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
