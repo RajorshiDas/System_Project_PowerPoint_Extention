@@ -1097,6 +1097,46 @@ namespace PowerPointAddIn1
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void blursettingbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { BlurFeature.ShowSettings(); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Blur Settings error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void blur_allexceptbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { BlurFeature.BlurAllExcept(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Blur All Except error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void blur_selectbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { BlurFeature.BlurSelected(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Blur Selected error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void blur_remainbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { BlurFeature.BlurRemainder(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Blur Remainder error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
         

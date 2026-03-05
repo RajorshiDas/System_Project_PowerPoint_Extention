@@ -62,12 +62,14 @@ namespace PowerPointAddIn1
             this.createzoombtn = this.Factory.CreateRibbonButton();
             this.effectGruop = this.Factory.CreateRibbonGroup();
             this.effectsplitbtn = this.Factory.CreateRibbonSplitButton();
-            this.focusMenu = this.Factory.CreateRibbonMenu();
-            this.focusbtn = this.Factory.CreateRibbonButton();
             this.spotlightMenu = this.Factory.CreateRibbonMenu();
             this.createspotlightbtn = this.Factory.CreateRibbonButton();
             this.spotlightSettingsBtn = this.Factory.CreateRibbonButton();
             this.blurMenu = this.Factory.CreateRibbonMenu();
+            this.blur_remainbtn = this.Factory.CreateRibbonButton();
+            this.blur_selectbtn = this.Factory.CreateRibbonButton();
+            this.blur_allexceptbtn = this.Factory.CreateRibbonButton();
+            this.blursettingbtn = this.Factory.CreateRibbonButton();
             this.MagnifyingGlassMenu = this.Factory.CreateRibbonMenu();
             this.magniaddbtn = this.Factory.CreateRibbonButton();
             this.magsetingsbtn = this.Factory.CreateRibbonButton();
@@ -77,6 +79,8 @@ namespace PowerPointAddIn1
             this.crtHypBtn = this.Factory.CreateRibbonButton();
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
             this.selecthypbtn = this.Factory.CreateRibbonButton();
+            this.group3 = this.Factory.CreateRibbonGroup();
+            this.group4 = this.Factory.CreateRibbonGroup();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
@@ -95,6 +99,8 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.ZoomGroup);
             this.tab1.Groups.Add(this.effectGruop);
             this.tab1.Groups.Add(this.hyperlinkgroup);
+            this.tab1.Groups.Add(this.group3);
+            this.tab1.Groups.Add(this.group4);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
             // 
@@ -280,28 +286,12 @@ namespace PowerPointAddIn1
             // effectsplitbtn
             // 
             this.effectsplitbtn.Image = ((System.Drawing.Image)(resources.GetObject("effectsplitbtn.Image")));
-            this.effectsplitbtn.Items.Add(this.focusMenu);
             this.effectsplitbtn.Items.Add(this.spotlightMenu);
             this.effectsplitbtn.Items.Add(this.blurMenu);
             this.effectsplitbtn.Items.Add(this.MagnifyingGlassMenu);
             this.effectsplitbtn.Label = "Effects Menu";
             this.effectsplitbtn.Name = "effectsplitbtn";
             this.effectsplitbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.effectsplitbtn_Click);
-            // 
-            // focusMenu
-            // 
-            this.focusMenu.Image = ((System.Drawing.Image)(resources.GetObject("focusMenu.Image")));
-            this.focusMenu.Items.Add(this.focusbtn);
-            this.focusMenu.Label = "Focus";
-            this.focusMenu.Name = "focusMenu";
-            this.focusMenu.ShowImage = true;
-            // 
-            // focusbtn
-            // 
-            this.focusbtn.Label = "Add Focus";
-            this.focusbtn.Name = "focusbtn";
-            this.focusbtn.ShowImage = true;
-            this.focusbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.focusbtn_Click);
             // 
             // spotlightMenu
             // 
@@ -329,9 +319,41 @@ namespace PowerPointAddIn1
             // blurMenu
             // 
             this.blurMenu.Image = ((System.Drawing.Image)(resources.GetObject("blurMenu.Image")));
+            this.blurMenu.Items.Add(this.blur_remainbtn);
+            this.blurMenu.Items.Add(this.blur_selectbtn);
+            this.blurMenu.Items.Add(this.blur_allexceptbtn);
+            this.blurMenu.Items.Add(this.blursettingbtn);
             this.blurMenu.Label = "Blur";
             this.blurMenu.Name = "blurMenu";
             this.blurMenu.ShowImage = true;
+            // 
+            // blur_remainbtn
+            // 
+            this.blur_remainbtn.Label = "Blur Remainder";
+            this.blur_remainbtn.Name = "blur_remainbtn";
+            this.blur_remainbtn.ShowImage = true;
+            this.blur_remainbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.blur_remainbtn_Click);
+            // 
+            // blur_selectbtn
+            // 
+            this.blur_selectbtn.Label = "Blur Selected";
+            this.blur_selectbtn.Name = "blur_selectbtn";
+            this.blur_selectbtn.ShowImage = true;
+            this.blur_selectbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.blur_selectbtn_Click);
+            // 
+            // blur_allexceptbtn
+            // 
+            this.blur_allexceptbtn.Label = "Blur Everything except selected";
+            this.blur_allexceptbtn.Name = "blur_allexceptbtn";
+            this.blur_allexceptbtn.ShowImage = true;
+            this.blur_allexceptbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.blur_allexceptbtn_Click);
+            // 
+            // blursettingbtn
+            // 
+            this.blursettingbtn.Label = "Settings";
+            this.blursettingbtn.Name = "blursettingbtn";
+            this.blursettingbtn.ShowImage = true;
+            this.blursettingbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.blursettingbtn_Click);
             // 
             // MagnifyingGlassMenu
             // 
@@ -404,6 +426,16 @@ namespace PowerPointAddIn1
             this.selecthypbtn.ShowImage = true;
             this.selecthypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selecthypbtn_Click);
             // 
+            // group3
+            // 
+            this.group3.Label = "group3";
+            this.group3.Name = "group3";
+            // 
+            // group4
+            // 
+            this.group4.Label = "group4";
+            this.group4.Name = "group4";
+            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -452,7 +484,6 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup ZoomGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup effectGruop;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton effectsplitbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonMenu focusMenu;
         internal Microsoft.Office.Tools.Ribbon.RibbonMenu spotlightMenu;
         internal Microsoft.Office.Tools.Ribbon.RibbonMenu blurMenu;
         internal Microsoft.Office.Tools.Ribbon.RibbonMenu MagnifyingGlassMenu;
@@ -462,7 +493,6 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton crtHypBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton rmvHypbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton selecthypbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton focusbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createspotlightbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton spotlightSettingsBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton magniaddbtn;
@@ -472,5 +502,11 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton selectzoombtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createzoombtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton adjustbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_remainbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_selectbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_allexceptbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton blursettingbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group4;
     }
 }
