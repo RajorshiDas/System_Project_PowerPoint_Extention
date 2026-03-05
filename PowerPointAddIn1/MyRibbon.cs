@@ -360,15 +360,37 @@ namespace PowerPointAddIn1
 
         private void RemoveNavigationBar(PowerPoint.Slide slide)
         {
+            // Restore content shapes to their pre-nav-bar geometry
+            for (int i = 1; i <= slide.Shapes.Count; i++)
+            {
+                try
+                {
+                    var sh = slide.Shapes[i];
+                    if (sh.Tags["NavBar"] == "True") continue;
+
+                    string savedTop = sh.Tags["NavBarOrigTop"];
+                    if (string.IsNullOrEmpty(savedTop)) continue;
+
+                    sh.Left   = float.Parse(sh.Tags["NavBarOrigLeft"],   System.Globalization.CultureInfo.InvariantCulture);
+                    sh.Top    = float.Parse(savedTop,                     System.Globalization.CultureInfo.InvariantCulture);
+                    sh.Width  = float.Parse(sh.Tags["NavBarOrigWidth"],  System.Globalization.CultureInfo.InvariantCulture);
+                    sh.Height = float.Parse(sh.Tags["NavBarOrigHeight"], System.Globalization.CultureInfo.InvariantCulture);
+
+                    try { sh.Tags.Delete("NavBarOrigLeft");   } catch { }
+                    try { sh.Tags.Delete("NavBarOrigTop");    } catch { }
+                    try { sh.Tags.Delete("NavBarOrigWidth");  } catch { }
+                    try { sh.Tags.Delete("NavBarOrigHeight"); } catch { }
+                }
+                catch { }
+            }
+
             // Remove shapes tagged as navigation bar
             for (int i = slide.Shapes.Count; i >= 1; i--)
             {
                 try
                 {
                     if (slide.Shapes[i].Tags["NavBar"] == "True")
-                    {
                         slide.Shapes[i].Delete();
-                    }
                 }
                 catch { }
             }
@@ -376,9 +398,42 @@ namespace PowerPointAddIn1
 
         private void AddNavigationBarToSlide(PowerPoint.Slide slide, PowerPoint.SectionProperties sections, PowerPoint.Presentation presentation)
         {
-            float barHeight = 60;
-            float slideWidth = presentation.PageSetup.SlideWidth;
-            
+            float barHeight  = 60;
+            float slideWidth  = presentation.PageSetup.SlideWidth;
+            float slideHeight = presentation.PageSetup.SlideHeight;
+
+            // Scale all existing content shapes so they fit in the area below the nav bar.
+            // contentScale maps the full slide height to the remaining content area.
+            float contentScale = (slideHeight - barHeight) / slideHeight;
+
+            for (int k = 1; k <= slide.Shapes.Count; k++)
+            {
+                try
+                {
+                    var sh = slide.Shapes[k];
+                    if (sh.Tags["NavBar"] == "True") continue;           // skip nav bar shapes
+                    if (!string.IsNullOrEmpty(sh.Tags["NavBarOrigTop"])) continue; // already scaled
+
+                    // Persist original geometry so RemoveNavigationBar can restore it
+                    sh.Tags.Add("NavBarOrigLeft",   sh.Left.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+                    sh.Tags.Add("NavBarOrigTop",    sh.Top.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
+                    sh.Tags.Add("NavBarOrigWidth",  sh.Width.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
+                    sh.Tags.Add("NavBarOrigHeight", sh.Height.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+
+                    // Apply scaled geometry: shift down and compress into the content area
+                    float newLeft   = sh.Left;
+                    float newTop    = barHeight + sh.Top    * contentScale;
+                    float newWidth  = sh.Width;
+                    float newHeight = sh.Height * contentScale;
+
+                    sh.Left   = newLeft;
+                    sh.Top    = newTop;
+                    sh.Width  = newWidth;
+                    sh.Height = newHeight;
+                }
+                catch { }
+            }
+
             // Create background bar - USE CUSTOM COLOR
             PowerPoint.Shape navBackground = slide.Shapes.AddShape(
                 Office.MsoAutoShapeType.msoShapeRectangle,
@@ -919,7 +974,87 @@ namespace PowerPointAddIn1
 
         private void adjustbtn_Click(object sender, RibbonControlEventArgs e)
         {
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                if (app.Presentations.Count == 0)
+                {
+                    MessageBox.Show("Please open a presentation first.", "No Presentation",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
+                var   pres        = app.ActivePresentation;
+                float slideHeight = pres.PageSetup.SlideHeight;
+                int   shapesFixed = 0;
+                int   slidesFixed = 0;
+
+                foreach (PowerPoint.Slide slide in pres.Slides)
+                {
+                    // Find the nav bar background on this slide to read its height
+                    float barHeight = 0f;
+                    for (int i = 1; i <= slide.Shapes.Count; i++)
+                    {
+                        try
+                        {
+                            var sh = slide.Shapes[i];
+                            if (sh.Tags["NavBar"] == "True" && sh.Top < 1f && sh.Left < 1f)
+                            {
+                                barHeight = sh.Height;
+                                break;
+                            }
+                        }
+                        catch { }
+                    }
+
+                    if (barHeight <= 0f) continue; // no nav bar on this slide
+
+                    float contentScale  = (slideHeight - barHeight) / slideHeight;
+                    bool  slideChanged  = false;
+
+                    for (int k = 1; k <= slide.Shapes.Count; k++)
+                    {
+                        try
+                        {
+                            var sh = slide.Shapes[k];
+                            if (sh.Tags["NavBar"] == "True") continue;           // skip nav bar shapes
+                            if (!string.IsNullOrEmpty(sh.Tags["NavBarOrigTop"])) continue; // already adjusted
+
+                            // Save original geometry so RemoveNavigationBar can restore it later
+                            sh.Tags.Add("NavBarOrigLeft",   sh.Left.ToString("R",   System.Globalization.CultureInfo.InvariantCulture));
+                            sh.Tags.Add("NavBarOrigTop",    sh.Top.ToString("R",    System.Globalization.CultureInfo.InvariantCulture));
+                            sh.Tags.Add("NavBarOrigWidth",  sh.Width.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
+                            sh.Tags.Add("NavBarOrigHeight", sh.Height.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+
+                            // Shift down and compress vertically into the content area
+                            sh.Top    = barHeight + sh.Top    * contentScale;
+                            sh.Height = sh.Height * contentScale;
+
+                            shapesFixed++;
+                            slideChanged = true;
+                        }
+                        catch { }
+                    }
+
+                    if (slideChanged) slidesFixed++;
+                }
+
+                if (shapesFixed > 0)
+                    MessageBox.Show(
+                        $"Adjusted {shapesFixed} shape(s) across {slidesFixed} slide(s) to fit below the navigation bar.",
+                        "Adjust Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else
+                    MessageBox.Show(
+                        "No new shapes found to adjust.\n\n" +
+                        "All content is already positioned below the navigation bar,\n" +
+                        "or no navigation bar exists yet.",
+                        "Nothing to Adjust", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Adjust error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void focusbtn_Click(object sender, RibbonControlEventArgs e)

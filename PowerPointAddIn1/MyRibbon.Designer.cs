@@ -79,8 +79,6 @@ namespace PowerPointAddIn1
             this.crtHypBtn = this.Factory.CreateRibbonButton();
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
             this.selecthypbtn = this.Factory.CreateRibbonButton();
-            this.group3 = this.Factory.CreateRibbonGroup();
-            this.group4 = this.Factory.CreateRibbonGroup();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
@@ -99,8 +97,6 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.ZoomGroup);
             this.tab1.Groups.Add(this.effectGruop);
             this.tab1.Groups.Add(this.hyperlinkgroup);
-            this.tab1.Groups.Add(this.group3);
-            this.tab1.Groups.Add(this.group4);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
             // 
@@ -426,16 +422,6 @@ namespace PowerPointAddIn1
             this.selecthypbtn.ShowImage = true;
             this.selecthypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selecthypbtn_Click);
             // 
-            // group3
-            // 
-            this.group3.Label = "group3";
-            this.group3.Name = "group3";
-            // 
-            // group4
-            // 
-            this.group4.Label = "group4";
-            this.group4.Name = "group4";
-            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -506,7 +492,5 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_selectbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_allexceptbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blursettingbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group4;
     }
 }
