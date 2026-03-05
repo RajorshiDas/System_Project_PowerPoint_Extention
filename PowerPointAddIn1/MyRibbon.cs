@@ -548,6 +548,7 @@ namespace PowerPointAddIn1
                     }
                     
                     shape.Tags.Add("NavBar", "True");
+                    shape.Tags.Add("NavBarSlide", slideIndexInPresentation.ToString());
 
                     // ADD SLIDE NUMBERS if enabled OR if NumberOnly mode
                     if (navBarSettings.ShowSlideNumbers || navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
@@ -764,7 +765,71 @@ namespace PowerPointAddIn1
 
         private void linkbtn_Click(object sender, RibbonControlEventArgs e)
         {
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                if (app.Presentations.Count == 0)
+                {
+                    MessageBox.Show("Please open a presentation first.", "No Presentation",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
+                var pres          = app.ActivePresentation;
+                int linksApplied  = 0;
+                int slidesVisited = 0;
+
+                foreach (PowerPoint.Slide slide in pres.Slides)
+                {
+                    slidesVisited++;
+                    for (int i = 1; i <= slide.Shapes.Count; i++)
+                    {
+                        try
+                        {
+                            var shape = slide.Shapes[i];
+                            if (shape.Tags["NavBar"] != "True") continue;
+
+                            string navSlideTag = shape.Tags["NavBarSlide"];
+                            if (string.IsNullOrEmpty(navSlideTag)) continue;
+                            if (!int.TryParse(navSlideTag, out int targetSlideNum)) continue;
+                            if (targetSlideNum < 1 || targetSlideNum > pres.Slides.Count) continue;
+
+                            var    targetSlide = pres.Slides[targetSlideNum];
+                            string subAddress  = $"{targetSlide.SlideID},{targetSlide.SlideIndex},{targetSlide.Name}";
+
+                            // Apply click-action hyperlink to the target slide
+                            var click  = shape.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick];
+                            click.Action = PowerPoint.PpActionType.ppActionNone;
+                            click.Action = PowerPoint.PpActionType.ppActionHyperlink;
+                            click.Hyperlink.Address    = "";
+                            click.Hyperlink.SubAddress = subAddress;
+
+                            // Clear mouse-over so it cannot interfere
+                            var over = shape.ActionSettings[PowerPoint.PpMouseActivation.ppMouseOver];
+                            over.Action = PowerPoint.PpActionType.ppActionNone;
+
+                            linksApplied++;
+                        }
+                        catch { }
+                    }
+                }
+
+                if (linksApplied > 0)
+                    MessageBox.Show(
+                        $"{linksApplied} hyperlink(s) added across {slidesVisited} slide(s).\n\n" +
+                        "\u26a0 Links only fire during Slide Show (F5) \u2014 not in Normal Edit view.",
+                        "Links Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else
+                    MessageBox.Show(
+                        "No navigation bar circles found.\n\n" +
+                        "Please generate (or refresh) the navigation bar first, then click 'Add Links'.",
+                        "No Nav Bar Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Add Links error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void selectEffecctdtn_Click(object sender, RibbonControlEventArgs e)
