@@ -65,10 +65,10 @@ namespace PowerPointAddIn1
 
                             lblSectionValue.Label = currentSectionName;
                             lblSlideValue.Label = slidesInSection.ToString();
-                            
+
                             string subsectionTag = activeSlide.Tags["Subsection"];
                             int subsectionCount = CountSubsectionsInSection(presentation, firstSlideInSection, slidesInSection);
-                            
+
                             if (string.IsNullOrEmpty(subsectionTag))
                             {
                                 valueSubsectionName.Label = $"None ({subsectionCount} total)";
@@ -96,13 +96,13 @@ namespace PowerPointAddIn1
                 {
                     lblSectionValue.Label = "No sections";
                     lblSlideValue.Label = presentation.Slides.Count.ToString();
-                    
+
                     try
                     {
                         PowerPoint.Slide activeSlide = app.ActiveWindow.View.Slide;
                         string subsectionTag = activeSlide.Tags["Subsection"];
                         int subsectionCount = CountSubsectionsInSection(presentation, 1, presentation.Slides.Count);
-                        
+
                         if (string.IsNullOrEmpty(subsectionTag))
                         {
                             valueSubsectionName.Label = $"None ({subsectionCount} total)";
@@ -147,14 +147,14 @@ namespace PowerPointAddIn1
         private int CountSubsectionsInSection(PowerPoint.Presentation presentation, int firstSlide, int slideCount)
         {
             HashSet<string> uniqueSubsections = new HashSet<string>();
-            
+
             for (int i = firstSlide; i < firstSlide + slideCount; i++)
             {
                 try
                 {
                     PowerPoint.Slide slide = presentation.Slides[i];
                     string subsectionTag = slide.Tags["Subsection"];
-                    
+
                     if (!string.IsNullOrEmpty(subsectionTag))
                     {
                         uniqueSubsections.Add(subsectionTag);
@@ -165,7 +165,7 @@ namespace PowerPointAddIn1
                     continue;
                 }
             }
-            
+
             return uniqueSubsections.Count;
         }
 
@@ -253,12 +253,12 @@ namespace PowerPointAddIn1
                 for (int i = startSlide; i <= endSlide; i++)
                 {
                     PowerPoint.Slide slide = presentation.Slides[i];
-                    
+
                     if (slide.Tags["Subsection"] != "")
                     {
                         slide.Tags.Delete("Subsection");
                     }
-                    
+
                     slide.Tags.Add("Subsection", subsectionName);
                     slideCount++;
                 }
@@ -291,10 +291,10 @@ namespace PowerPointAddIn1
             try
             {
                 PowerPoint.Application app = Globals.ThisAddIn.Application;
-                
+
                 if (app.ActivePresentation == null)
                 {
-                    MessageBox.Show("Please open a presentation first.", "No Presentation", 
+                    MessageBox.Show("Please open a presentation first.", "No Presentation",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -304,7 +304,7 @@ namespace PowerPointAddIn1
 
                 if (sections.Count == 0)
                 {
-                    MessageBox.Show("This presentation has no sections. Please add sections first.", 
+                    MessageBox.Show("This presentation has no sections. Please add sections first.",
                         "No Sections", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -347,13 +347,13 @@ namespace PowerPointAddIn1
                     message += "\n\nNote: No subsections found. Create subsections to see colored grouping.";
                 }
 
-                MessageBox.Show(message, "Success", 
-                    MessageBoxButtons.OK, 
+                MessageBox.Show(message, "Success",
+                    MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error creating navigation bar: {ex.Message}\n\nStack: {ex.StackTrace}", "Error", 
+                MessageBox.Show($"Error creating navigation bar: {ex.Message}\n\nStack: {ex.StackTrace}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -371,14 +371,14 @@ namespace PowerPointAddIn1
                     string savedTop = sh.Tags["NavBarOrigTop"];
                     if (string.IsNullOrEmpty(savedTop)) continue;
 
-                    sh.Left   = float.Parse(sh.Tags["NavBarOrigLeft"],   System.Globalization.CultureInfo.InvariantCulture);
-                    sh.Top    = float.Parse(savedTop,                     System.Globalization.CultureInfo.InvariantCulture);
-                    sh.Width  = float.Parse(sh.Tags["NavBarOrigWidth"],  System.Globalization.CultureInfo.InvariantCulture);
+                    sh.Left = float.Parse(sh.Tags["NavBarOrigLeft"], System.Globalization.CultureInfo.InvariantCulture);
+                    sh.Top = float.Parse(savedTop, System.Globalization.CultureInfo.InvariantCulture);
+                    sh.Width = float.Parse(sh.Tags["NavBarOrigWidth"], System.Globalization.CultureInfo.InvariantCulture);
                     sh.Height = float.Parse(sh.Tags["NavBarOrigHeight"], System.Globalization.CultureInfo.InvariantCulture);
 
-                    try { sh.Tags.Delete("NavBarOrigLeft");   } catch { }
-                    try { sh.Tags.Delete("NavBarOrigTop");    } catch { }
-                    try { sh.Tags.Delete("NavBarOrigWidth");  } catch { }
+                    try { sh.Tags.Delete("NavBarOrigLeft"); } catch { }
+                    try { sh.Tags.Delete("NavBarOrigTop"); } catch { }
+                    try { sh.Tags.Delete("NavBarOrigWidth"); } catch { }
                     try { sh.Tags.Delete("NavBarOrigHeight"); } catch { }
                 }
                 catch { }
@@ -398,43 +398,85 @@ namespace PowerPointAddIn1
 
         private void AddNavigationBarToSlide(PowerPoint.Slide slide, PowerPoint.SectionProperties sections, PowerPoint.Presentation presentation)
         {
-            float barHeight  = 60;
             float slideWidth  = presentation.PageSetup.SlideWidth;
             float slideHeight = presentation.PageSetup.SlideHeight;
 
-            // Scale all existing content shapes so they fit in the area below the nav bar.
-            // contentScale maps the full slide height to the remaining content area.
-            float contentScale = (slideHeight - barHeight) / slideHeight;
+            // Layout constants
+            // Each section is a column:   SECTION NAME
+            //                             ● ● ● ● ●
+            // Columns are packed left-to-right and wrap to a new band when they overflow.
+            const float startX          = 10f;
+            const float circleSize      = 12f;
+            const float circleSpacing   = 5f;
+            const float sectionGap      = 14f;   // horizontal gap between section columns
+            const float labelFontSize   = 12f;
+            const float labelHeight     = 16f;   // textbox height for the section name
+            const float labelCircleGap  = 3f;    // vertical gap between name and circles
+            const float bandPadTop      = 4f;    // padding above name inside each band
+            const float bandPadBottom   = 4f;    // padding below circles inside each band
+            // Approximate pt-width per character at 12pt bold Calibri
+            float approxCharWidth = labelFontSize * 0.65f;
 
+            // Height of one band = pad + label + gap + circles + pad
+            float bandHeight = bandPadTop + labelHeight + labelCircleGap + circleSize + bandPadBottom;
+
+            float availableWidth = slideWidth - startX * 2f;
+            int   sectionCount   = sections.Count;
+
+            // Pass 1 – column width for each section = max(name width, circles width)
+            float[] nameWidths = new float[sectionCount + 1];
+            float[] colWidths  = new float[sectionCount + 1];
+            for (int i = 1; i <= sectionCount; i++)
+            {
+                nameWidths[i] = Math.Max(30f, sections.Name(i).Length * approxCharWidth);
+                float circlesW = sections.SlidesCount(i) * (circleSize + circleSpacing);
+                colWidths[i]  = Math.Max(nameWidths[i], circlesW);
+            }
+
+            // Pass 2 – greedily pack sections into bands (wrap when next column would overflow)
+            var bands   = new List<List<int>>();
+            var curBand = new List<int>();
+            float curBandW = 0f;
+            for (int i = 1; i <= sectionCount; i++)
+            {
+                float needed = colWidths[i] + (curBand.Count > 0 ? sectionGap : 0f);
+                if (curBand.Count > 0 && curBandW + needed > availableWidth)
+                {
+                    bands.Add(curBand);
+                    curBand = new List<int>();
+                    curBandW = 0f;
+                }
+                curBandW += (curBand.Count > 0 ? sectionGap : 0f) + colWidths[i];
+                curBand.Add(i);
+            }
+            if (curBand.Count > 0)
+                bands.Add(curBand);
+
+            // Bar height grows with the number of bands
+            float barHeight = bands.Count * bandHeight + 6f; // 3pt top + 3pt bottom margin
+
+            // Scale existing slide content to fit below the bar
+            float contentScale = (slideHeight - barHeight) / slideHeight;
             for (int k = 1; k <= slide.Shapes.Count; k++)
             {
                 try
                 {
                     var sh = slide.Shapes[k];
-                    if (sh.Tags["NavBar"] == "True") continue;           // skip nav bar shapes
-                    if (!string.IsNullOrEmpty(sh.Tags["NavBarOrigTop"])) continue; // already scaled
+                    if (sh.Tags["NavBar"] == "True") continue;
+                    if (!string.IsNullOrEmpty(sh.Tags["NavBarOrigTop"])) continue;
 
-                    // Persist original geometry so RemoveNavigationBar can restore it
-                    sh.Tags.Add("NavBarOrigLeft",   sh.Left.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
-                    sh.Tags.Add("NavBarOrigTop",    sh.Top.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
+                    sh.Tags.Add("NavBarOrigLeft",   sh.Left.ToString("R",   System.Globalization.CultureInfo.InvariantCulture));
+                    sh.Tags.Add("NavBarOrigTop",    sh.Top.ToString("R",    System.Globalization.CultureInfo.InvariantCulture));
                     sh.Tags.Add("NavBarOrigWidth",  sh.Width.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
                     sh.Tags.Add("NavBarOrigHeight", sh.Height.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
 
-                    // Apply scaled geometry: shift down and compress into the content area
-                    float newLeft   = sh.Left;
-                    float newTop    = barHeight + sh.Top    * contentScale;
-                    float newWidth  = sh.Width;
-                    float newHeight = sh.Height * contentScale;
-
-                    sh.Left   = newLeft;
-                    sh.Top    = newTop;
-                    sh.Width  = newWidth;
-                    sh.Height = newHeight;
+                    sh.Top    = barHeight + sh.Top * contentScale;
+                    sh.Height = sh.Height * contentScale;
                 }
                 catch { }
             }
 
-            // Create background bar - USE CUSTOM COLOR
+            // Background bar - USE CUSTOM COLOR
             PowerPoint.Shape navBackground = slide.Shapes.AddShape(
                 Office.MsoAutoShapeType.msoShapeRectangle,
                 0, 0, slideWidth, barHeight);
@@ -442,188 +484,160 @@ namespace PowerPointAddIn1
             navBackground.Line.Visible = Office.MsoTriState.msoFalse;
             navBackground.Tags.Add("NavBar", "True");
 
-            float startX = 20;
-            float currentX = startX;
-            float topY = 8;
-            float circleSize = 12;
-            float circleSpacing = 6;
-
             int currentSlideIndex = slide.SlideIndex;
-            int currentSectionIndex = GetSectionIndexForSlide(sections, currentSlideIndex);
 
-            for (int i = 1; i <= sections.Count; i++)
+            // Pass 3 – draw each band: columns are  SECTION NAME
+            //                                        ● ● ● ●
+            for (int bandIdx = 0; bandIdx < bands.Count; bandIdx++)
             {
-                string sectionName = sections.Name(i);
-                int slideCountInSection = sections.SlidesCount(i);
-                int firstSlideInSection = sections.FirstSlide(i);
+                float bandTop  = 3f + bandIdx * bandHeight;   // 3pt top bar margin
+                float labelY   = bandTop + bandPadTop;
+                float circleY  = bandTop + bandPadTop + labelHeight + labelCircleGap;
+                float currentX = startX;
 
-                // Add section name - USE CUSTOM COLOR
-                PowerPoint.Shape sectionLabel = slide.Shapes.AddTextbox(
-                    Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                    currentX, topY, 200, 20);
-                sectionLabel.TextFrame.TextRange.Text = sectionName;
-                sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SectionNameColor);
-                sectionLabel.TextFrame.TextRange.Font.Size = 12;
-                sectionLabel.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
-                sectionLabel.Line.Visible = Office.MsoTriState.msoFalse;
-                sectionLabel.Fill.Visible = Office.MsoTriState.msoFalse;
-                sectionLabel.Tags.Add("NavBar", "True");
-
-                // Add circles for slides with subsection grouping
-                float circleY = topY + 25;
-                float circleX = currentX;
-
-                // Get subsections for this section
-                var subsectionGroups = GetSubsectionGroups(presentation, firstSlideInSection, slideCountInSection);
-
-                // Draw colored backgrounds for subsection groups
-                int colorIndex = 0;
-                foreach (var group in subsectionGroups)
+                foreach (int i in bands[bandIdx])
                 {
-                    if (!string.IsNullOrEmpty(group.SubsectionName))
-                    {
-                        // Calculate box position and size
-                        float boxX = currentX + (group.StartIndex * (circleSize + circleSpacing)) - 2;
-                        float boxY = circleY - 2;
-                        float boxWidth = (group.Count * (circleSize + circleSpacing)) - circleSpacing + 4;
-                        float boxHeight = circleSize + 4;
+                    string sectionName         = sections.Name(i);
+                    int    slideCountInSection  = sections.SlidesCount(i);
+                    int    firstSlideInSection  = sections.FirstSlide(i);
+                    float  cw = colWidths[i];   // full column width
 
-                        // Draw rounded rectangle with colored fill - USE CUSTOM COLORS
-                        PowerPoint.Shape subsectionBox = slide.Shapes.AddShape(
-                            Office.MsoAutoShapeType.msoShapeRoundedRectangle,
-                            boxX, boxY, boxWidth, boxHeight);
-                        
-                        // Set fill color (cycling through colors)
-                        System.Drawing.Color fillColor = navBarSettings.SubsectionBoxColors[colorIndex % navBarSettings.SubsectionBoxColors.Length];
-                        subsectionBox.Fill.Visible = Office.MsoTriState.msoTrue;
-                        subsectionBox.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(fillColor);
-                        subsectionBox.Fill.Transparency = navBarSettings.SubsectionBoxTransparency;
-                        
-                        // Add thick visible border
-                        subsectionBox.Line.Visible = Office.MsoTriState.msoTrue;
-                        subsectionBox.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(fillColor);
-                        subsectionBox.Line.Weight = 2.0f;
-                        subsectionBox.Line.Transparency = 0.0f;
-                        
-                        try
+                    // Section name label – uses the full column width so it aligns with circles - USE CUSTOM COLOR
+                    PowerPoint.Shape sectionLabel = slide.Shapes.AddTextbox(
+                        Office.MsoTextOrientation.msoTextOrientationHorizontal,
+                        currentX, labelY, cw, labelHeight);
+                    sectionLabel.TextFrame.TextRange.Text = sectionName;
+                    sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SectionNameColor);
+                    sectionLabel.TextFrame.TextRange.Font.Size = labelFontSize;
+                    sectionLabel.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
+                    sectionLabel.Line.Visible = Office.MsoTriState.msoFalse;
+                    sectionLabel.Fill.Visible = Office.MsoTriState.msoFalse;
+                    sectionLabel.TextFrame.WordWrap = Office.MsoTriState.msoFalse;
+                    sectionLabel.Tags.Add("NavBar", "True");
+
+                    // Circles are directly below the name, left-aligned with the column
+                    float circleX = currentX;
+
+                    // Subsection group boxes - USE CUSTOM COLORS
+                    var subsectionGroups = GetSubsectionGroups(presentation, firstSlideInSection, slideCountInSection);
+                    int colorIndex = 0;
+                    foreach (var group in subsectionGroups)
+                    {
+                        if (!string.IsNullOrEmpty(group.SubsectionName))
                         {
-                            subsectionBox.Adjustments[1] = 0.25f;
+                            float boxX      = circleX + group.StartIndex * (circleSize + circleSpacing) - 2f;
+                            float boxY      = circleY - 2f;
+                            float boxWidth  = group.Count * (circleSize + circleSpacing) - circleSpacing + 4f;
+                            float boxHeight = circleSize + 4f;
+
+                            PowerPoint.Shape subsectionBox = slide.Shapes.AddShape(
+                                Office.MsoAutoShapeType.msoShapeRoundedRectangle,
+                                boxX, boxY, boxWidth, boxHeight);
+
+                            System.Drawing.Color fillColor = navBarSettings.SubsectionBoxColors[colorIndex % navBarSettings.SubsectionBoxColors.Length];
+                            subsectionBox.Fill.Visible        = Office.MsoTriState.msoTrue;
+                            subsectionBox.Fill.ForeColor.RGB  = System.Drawing.ColorTranslator.ToOle(fillColor);
+                            subsectionBox.Fill.Transparency   = navBarSettings.SubsectionBoxTransparency;
+                            subsectionBox.Line.Visible        = Office.MsoTriState.msoTrue;
+                            subsectionBox.Line.ForeColor.RGB  = System.Drawing.ColorTranslator.ToOle(fillColor);
+                            subsectionBox.Line.Weight         = 2.0f;
+                            subsectionBox.Line.Transparency   = 0.0f;
+                            try { subsectionBox.Adjustments[1] = 0.25f; } catch { }
+                            subsectionBox.Tags.Add("NavBar", "True");
+                            subsectionBox.Tags.Add("SubsectionBox", group.SubsectionName);
+                            subsectionBox.ZOrder(Office.MsoZOrderCmd.msoSendToBack);
+
+                            System.Diagnostics.Debug.WriteLine($"Created colored box for subsection '{group.SubsectionName}' at position {boxX}, color index {colorIndex}");
+                            colorIndex++;
                         }
-                        catch { }
-                        
-                        subsectionBox.Tags.Add("NavBar", "True");
-                        subsectionBox.Tags.Add("SubsectionBox", group.SubsectionName);
-                        subsectionBox.ZOrder(Office.MsoZOrderCmd.msoSendToBack);
-                        
-                        System.Diagnostics.Debug.WriteLine($"Created colored box for subsection '{group.SubsectionName}' at position {boxX}, color index {colorIndex}");
-                        
-                        colorIndex++;
                     }
-                }
 
-                // Draw circles
-                string currentSlideSubsection = "";
-                try
-                {
-                    PowerPoint.Slide currentSlide = presentation.Slides[currentSlideIndex];
-                    currentSlideSubsection = currentSlide.Tags["Subsection"];
-                }
-                catch { }
+                    // Draw slide circles
+                    string currentSlideSubsection = "";
+                    try { currentSlideSubsection = presentation.Slides[currentSlideIndex].Tags["Subsection"]; } catch { }
 
-                for (int j = 0; j < slideCountInSection; j++)
-                {
-                    int slideIndexInPresentation = firstSlideInSection + j;
-                    
-                    PowerPoint.Shape shape = null;
-                    
-                    // Check if we're using Number Only mode
-                    if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
+                    float cx = circleX;
+                    for (int j = 0; j < slideCountInSection; j++)
                     {
-                        // Create just a text box for number only
-                        shape = slide.Shapes.AddTextbox(
-                            Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                            circleX, circleY, circleSize, circleSize);
-                        shape.Line.Visible = Office.MsoTriState.msoFalse;
-                        shape.Fill.Visible = Office.MsoTriState.msoFalse;
-                    }
-                    else
-                    {
-                        // Create shape based on settings (Circle or Square)
-                        if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.Square)
+                        int slideIndexInPresentation = firstSlideInSection + j;
+                        PowerPoint.Shape shape = null;
+
+                        if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
+                        {
+                            shape = slide.Shapes.AddTextbox(
+                                Office.MsoTextOrientation.msoTextOrientationHorizontal,
+                                cx, circleY, circleSize, circleSize);
+                            shape.Line.Visible = Office.MsoTriState.msoFalse;
+                            shape.Fill.Visible = Office.MsoTriState.msoFalse;
+                        }
+                        else if (navBarSettings.SlideShapeType == NavBarSettings.ShapeType.Square)
                         {
                             shape = slide.Shapes.AddShape(
                                 Office.MsoAutoShapeType.msoShapeRectangle,
-                                circleX, circleY, circleSize, circleSize);
+                                cx, circleY, circleSize, circleSize);
                         }
                         else
                         {
                             shape = slide.Shapes.AddShape(
                                 Office.MsoAutoShapeType.msoShapeOval,
-                                circleX, circleY, circleSize, circleSize);
+                                cx, circleY, circleSize, circleSize);
                         }
-                    }
-                    
-                    // Get this slide's subsection
-                    string thisSlideSubsection = "";
-                    try
-                    {
-                        PowerPoint.Slide thisSlide = presentation.Slides[slideIndexInPresentation];
-                        thisSlideSubsection = thisSlide.Tags["Subsection"];
-                    }
-                    catch { }
 
-                    // Apply colors only if NOT Number Only mode
-                    if (navBarSettings.SlideShapeType != NavBarSettings.ShapeType.NumberOnly)
-                    {
-                        if (slideIndexInPresentation == currentSlideIndex)
-                        {
-                            // CURRENT SLIDE - USE CUSTOM COLOR
-                            shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
-                            shape.Line.Visible = Office.MsoTriState.msoFalse;
-                        }
-                        else if (!string.IsNullOrEmpty(currentSlideSubsection) && 
-                                 !string.IsNullOrEmpty(thisSlideSubsection) && 
-                                 thisSlideSubsection == currentSlideSubsection)
-                        {
-                            // SAME SUBSECTION - USE CUSTOM COLORS
-                            shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
-                            shape.Fill.Visible = Office.MsoTriState.msoTrue;
-                            shape.Line.Visible = Office.MsoTriState.msoTrue;
-                            shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
-                            shape.Line.Weight = 2.0f;
-                        }
-                        else
-                        {
-                            // OTHER SLIDES - USE CUSTOM COLOR
-                            shape.Fill.Visible = Office.MsoTriState.msoFalse;
-                            shape.Line.Visible = Office.MsoTriState.msoTrue;
-                            shape.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
-                            shape.Line.Weight = 1.5f;
-                        }
-                    }
-                    
-                    shape.Tags.Add("NavBar", "True");
-                    shape.Tags.Add("NavBarSlide", slideIndexInPresentation.ToString());
+                        string thisSlideSubsection = "";
+                        try { thisSlideSubsection = presentation.Slides[slideIndexInPresentation].Tags["Subsection"]; } catch { }
 
-                    // ADD SLIDE NUMBERS if enabled OR if NumberOnly mode
-                    if (navBarSettings.ShowSlideNumbers || navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
-                    {
-                        shape.TextFrame.TextRange.Text = slideIndexInPresentation.ToString();
-                        shape.TextFrame.TextRange.Font.Size = navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly ? 10 : 8;
-                        shape.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SlideNumberColor);
-                        shape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
-                        shape.TextFrame.TextRange.ParagraphFormat.Alignment = PowerPoint.PpParagraphAlignment.ppAlignCenter;
-                        shape.TextFrame.VerticalAnchor = Office.MsoVerticalAnchor.msoAnchorMiddle;
-                        shape.TextFrame.MarginLeft = 0;
-                        shape.TextFrame.MarginRight = 0;
-                        shape.TextFrame.MarginTop = 0;
-                        shape.TextFrame.MarginBottom = 0;
+                        if (navBarSettings.SlideShapeType != NavBarSettings.ShapeType.NumberOnly)
+                        {
+                            if (slideIndexInPresentation == currentSlideIndex)
+                            {
+                                // CURRENT SLIDE - USE CUSTOM COLOR
+                                shape.Fill.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.CurrentSlideColor);
+                                shape.Line.Visible = Office.MsoTriState.msoFalse;
+                            }
+                            else if (!string.IsNullOrEmpty(currentSlideSubsection) &&
+                                     !string.IsNullOrEmpty(thisSlideSubsection) &&
+                                     thisSlideSubsection == currentSlideSubsection)
+                            {
+                                // SAME SUBSECTION - USE CUSTOM COLORS
+                                shape.Fill.ForeColor.RGB  = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionFillColor);
+                                shape.Fill.Visible        = Office.MsoTriState.msoTrue;
+                                shape.Line.Visible        = Office.MsoTriState.msoTrue;
+                                shape.Line.ForeColor.RGB  = System.Drawing.ColorTranslator.ToOle(navBarSettings.SameSubsectionBorderColor);
+                                shape.Line.Weight         = 2.0f;
+                            }
+                            else
+                            {
+                                // OTHER SLIDES - USE CUSTOM COLOR
+                                shape.Fill.Visible        = Office.MsoTriState.msoFalse;
+                                shape.Line.Visible        = Office.MsoTriState.msoTrue;
+                                shape.Line.ForeColor.RGB  = System.Drawing.ColorTranslator.ToOle(navBarSettings.OtherSlidesBorderColor);
+                                shape.Line.Weight         = 1.5f;
+                            }
+                        }
+
+                        shape.Tags.Add("NavBar", "True");
+                        shape.Tags.Add("NavBarSlide", slideIndexInPresentation.ToString());
+
+                        // ADD SLIDE NUMBERS if enabled OR if NumberOnly mode
+                        if (navBarSettings.ShowSlideNumbers || navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly)
+                        {
+                            shape.TextFrame.TextRange.Text = slideIndexInPresentation.ToString();
+                            shape.TextFrame.TextRange.Font.Size = navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly ? 10 : 8;
+                            shape.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SlideNumberColor);
+                            shape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
+                            shape.TextFrame.TextRange.ParagraphFormat.Alignment = PowerPoint.PpParagraphAlignment.ppAlignCenter;
+                            shape.TextFrame.VerticalAnchor = Office.MsoVerticalAnchor.msoAnchorMiddle;
+                            shape.TextFrame.MarginLeft   = 0;
+                            shape.TextFrame.MarginRight  = 0;
+                            shape.TextFrame.MarginTop    = 0;
+                            shape.TextFrame.MarginBottom = 0;
+                        }
+
+                        cx += circleSize + circleSpacing;
                     }
-                    
-                    circleX += circleSize + circleSpacing;
+
+                    currentX += cw + sectionGap;
                 }
-
-                currentX += Math.Max(150, (circleSize + circleSpacing) * slideCountInSection) + 30;
             }
         }
 
@@ -637,7 +651,7 @@ namespace PowerPointAddIn1
         private List<SubsectionGroup> GetSubsectionGroups(PowerPoint.Presentation presentation, int firstSlide, int slideCount)
         {
             List<SubsectionGroup> groups = new List<SubsectionGroup>();
-            
+
             string currentSubsection = null;
             int groupStart = 0;
             int groupCount = 0;
@@ -720,7 +734,7 @@ namespace PowerPointAddIn1
             }
 
             debugInfo += $"\nTotal groups found: {groups.Count}\n";
-            
+
             // Show debug info
             if (groups.Count > 0)
             {
@@ -757,10 +771,10 @@ namespace PowerPointAddIn1
             try
             {
                 PowerPoint.Application app = Globals.ThisAddIn.Application;
-                
+
                 if (app.ActivePresentation == null)
                 {
-                    MessageBox.Show("Please open a presentation first.", "No Presentation", 
+                    MessageBox.Show("Please open a presentation first.", "No Presentation",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -775,14 +789,14 @@ namespace PowerPointAddIn1
                     slidesProcessed++;
                 }
 
-                MessageBox.Show($"Navigation bar removed from {slidesProcessed} slide(s)!", 
-                    "Success", 
-                    MessageBoxButtons.OK, 
+                MessageBox.Show($"Navigation bar removed from {slidesProcessed} slide(s)!",
+                    "Success",
+                    MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error removing navigation bar: {ex.Message}", "Error", 
+                MessageBox.Show($"Error removing navigation bar: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -792,7 +806,7 @@ namespace PowerPointAddIn1
 
         }
 
-       
+
 
         private void btnNavBarSettings_Click(object sender, RibbonControlEventArgs e)
         {
@@ -801,17 +815,17 @@ namespace PowerPointAddIn1
                 if (settingsDialog.ShowDialog() == DialogResult.OK)
                 {
                     navBarSettings = settingsDialog.Settings;
-                    MessageBox.Show("Colors updated! Click 'Refresh Nav Bar' to apply changes.", 
+                    MessageBox.Show("Colors updated! Click 'Refresh Nav Bar' to apply changes.",
                         "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
 
 
-      
-       
 
-     
+
+
+
 
         private void effectsplitbtn_Click(object sender, RibbonControlEventArgs e)
         {
@@ -830,8 +844,8 @@ namespace PowerPointAddIn1
                     return;
                 }
 
-                var pres          = app.ActivePresentation;
-                int linksApplied  = 0;
+                var pres = app.ActivePresentation;
+                int linksApplied = 0;
                 int slidesVisited = 0;
 
                 foreach (PowerPoint.Slide slide in pres.Slides)
@@ -849,14 +863,14 @@ namespace PowerPointAddIn1
                             if (!int.TryParse(navSlideTag, out int targetSlideNum)) continue;
                             if (targetSlideNum < 1 || targetSlideNum > pres.Slides.Count) continue;
 
-                            var    targetSlide = pres.Slides[targetSlideNum];
-                            string subAddress  = $"{targetSlide.SlideID},{targetSlide.SlideIndex},{targetSlide.Name}";
+                            var targetSlide = pres.Slides[targetSlideNum];
+                            string subAddress = $"{targetSlide.SlideID},{targetSlide.SlideIndex},{targetSlide.Name}";
 
                             // Apply click-action hyperlink to the target slide
-                            var click  = shape.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick];
+                            var click = shape.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick];
                             click.Action = PowerPoint.PpActionType.ppActionNone;
                             click.Action = PowerPoint.PpActionType.ppActionHyperlink;
-                            click.Hyperlink.Address    = "";
+                            click.Hyperlink.Address = "";
                             click.Hyperlink.SubAddress = subAddress;
 
                             // Clear mouse-over so it cannot interfere
@@ -984,10 +998,10 @@ namespace PowerPointAddIn1
                     return;
                 }
 
-                var   pres        = app.ActivePresentation;
+                var pres = app.ActivePresentation;
                 float slideHeight = pres.PageSetup.SlideHeight;
-                int   shapesFixed = 0;
-                int   slidesFixed = 0;
+                int shapesFixed = 0;
+                int slidesFixed = 0;
 
                 foreach (PowerPoint.Slide slide in pres.Slides)
                 {
@@ -1009,8 +1023,8 @@ namespace PowerPointAddIn1
 
                     if (barHeight <= 0f) continue; // no nav bar on this slide
 
-                    float contentScale  = (slideHeight - barHeight) / slideHeight;
-                    bool  slideChanged  = false;
+                    float contentScale = (slideHeight - barHeight) / slideHeight;
+                    bool slideChanged = false;
 
                     for (int k = 1; k <= slide.Shapes.Count; k++)
                     {
@@ -1021,13 +1035,13 @@ namespace PowerPointAddIn1
                             if (!string.IsNullOrEmpty(sh.Tags["NavBarOrigTop"])) continue; // already adjusted
 
                             // Save original geometry so RemoveNavigationBar can restore it later
-                            sh.Tags.Add("NavBarOrigLeft",   sh.Left.ToString("R",   System.Globalization.CultureInfo.InvariantCulture));
-                            sh.Tags.Add("NavBarOrigTop",    sh.Top.ToString("R",    System.Globalization.CultureInfo.InvariantCulture));
-                            sh.Tags.Add("NavBarOrigWidth",  sh.Width.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
+                            sh.Tags.Add("NavBarOrigLeft", sh.Left.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+                            sh.Tags.Add("NavBarOrigTop", sh.Top.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+                            sh.Tags.Add("NavBarOrigWidth", sh.Width.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
                             sh.Tags.Add("NavBarOrigHeight", sh.Height.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
 
                             // Shift down and compress vertically into the content area
-                            sh.Top    = barHeight + sh.Top    * contentScale;
+                            sh.Top = barHeight + sh.Top * contentScale;
                             sh.Height = sh.Height * contentScale;
 
                             shapesFixed++;
@@ -1134,7 +1148,7 @@ namespace PowerPointAddIn1
                     return;
                 }
 
-                var srcSlide    = pres.Slides[srcSlideIdx];
+                var srcSlide = pres.Slides[srcSlideIdx];
                 var targetSlide = pres.Slides[targetSlideNum];
 
                 // SlideID,SlideIndex,SlideName is the full internal format PowerPoint uses
@@ -1151,8 +1165,8 @@ namespace PowerPointAddIn1
                     // Reset click action so the Hyperlink object is clean
                     var click = sh.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick];
                     click.Action = PowerPoint.PpActionType.ppActionNone;
-                    click.Action              = PowerPoint.PpActionType.ppActionHyperlink;
-                    click.Hyperlink.Address    = "";
+                    click.Action = PowerPoint.PpActionType.ppActionHyperlink;
+                    click.Hyperlink.Address = "";
                     click.Hyperlink.SubAddress = subAddress;
 
                     // Also clear mouse-over so it cannot interfere
@@ -1211,8 +1225,8 @@ namespace PowerPointAddIn1
                 }
                 else if (_hypShapeNames.Count > 0)
                 {
-                    shapeNames   = new List<string>(_hypShapeNames);
-                    srcSlideIdx  = _hypSourceSlideIndex;
+                    shapeNames = new List<string>(_hypShapeNames);
+                    srcSlideIdx = _hypSourceSlideIndex;
                 }
                 else
                 {
@@ -1226,7 +1240,7 @@ namespace PowerPointAddIn1
                 if (srcSlideIdx < 1 || srcSlideIdx > pres.Slides.Count) return;
 
                 var srcSlide = pres.Slides[srcSlideIdx];
-                int removed  = 0;
+                int removed = 0;
 
                 foreach (string shapeName in shapeNames)
                 {
@@ -1339,4 +1353,3 @@ namespace PowerPointAddIn1
         }
     }
 }
-        
