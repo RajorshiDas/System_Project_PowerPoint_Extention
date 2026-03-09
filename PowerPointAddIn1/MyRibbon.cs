@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Microsoft.Office.Tools.Ribbon;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
+using QRCoder;
 
 namespace PowerPointAddIn1
 {
@@ -1350,6 +1351,20 @@ namespace PowerPointAddIn1
                 MessageBox.Show("Blur Remainder error: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnToggleQR_Click(object sender, RibbonControlEventArgs e)
+        {
+            var taskPane = Globals.ThisAddIn.QRTaskPane;
+            if (taskPane != null)
+            {
+                taskPane.Visible = btnToggleQR.Checked;
+            }
+        }
+
+        public void SyncQRToggleButton(bool visible)
+        {
+            btnToggleQR.Checked = visible;
         }
     }
 }

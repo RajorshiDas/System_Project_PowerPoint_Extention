@@ -79,6 +79,8 @@ namespace PowerPointAddIn1
             this.crtHypBtn = this.Factory.CreateRibbonButton();
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
             this.selecthypbtn = this.Factory.CreateRibbonButton();
+            this.group3 = this.Factory.CreateRibbonGroup();
+            this.btnToggleQR = this.Factory.CreateRibbonToggleButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
@@ -86,6 +88,7 @@ namespace PowerPointAddIn1
             this.ZoomGroup.SuspendLayout();
             this.effectGruop.SuspendLayout();
             this.hyperlinkgroup.SuspendLayout();
+            this.group3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab1
@@ -97,6 +100,7 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.ZoomGroup);
             this.tab1.Groups.Add(this.effectGruop);
             this.tab1.Groups.Add(this.hyperlinkgroup);
+            this.tab1.Groups.Add(this.group3);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
             // 
@@ -422,6 +426,21 @@ namespace PowerPointAddIn1
             this.selecthypbtn.ShowImage = true;
             this.selecthypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selecthypbtn_Click);
             // 
+            // group3
+            // 
+            this.group3.Items.Add(this.btnToggleQR);
+            this.group3.Label = "QR Code";
+            this.group3.Name = "group3";
+            // 
+            // btnToggleQR
+            // 
+            this.btnToggleQR.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.btnToggleQR.Image = ((System.Drawing.Image)(resources.GetObject("btnToggleQR.Image")));
+            this.btnToggleQR.Label = "QR Code Pane";
+            this.btnToggleQR.Name = "btnToggleQR";
+            this.btnToggleQR.ShowImage = true;
+            this.btnToggleQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnToggleQR_Click);
+            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -442,6 +461,8 @@ namespace PowerPointAddIn1
             this.effectGruop.PerformLayout();
             this.hyperlinkgroup.ResumeLayout(false);
             this.hyperlinkgroup.PerformLayout();
+            this.group3.ResumeLayout(false);
+            this.group3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -492,5 +513,7 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_selectbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blur_allexceptbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton blursettingbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton btnToggleQR;
     }
 }
