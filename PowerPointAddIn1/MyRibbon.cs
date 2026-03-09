@@ -407,7 +407,7 @@ namespace PowerPointAddIn1
             //                             ● ● ● ● ●
             // Columns are packed left-to-right and wrap to a new band when they overflow.
             const float startX          = 10f;
-            const float circleSize      = 12f;
+            const float baseCircleSize  = 12f;
             const float circleSpacing   = 5f;
             const float sectionGap      = 14f;   // horizontal gap between section columns
             const float labelFontSize   = 12f;
@@ -418,11 +418,30 @@ namespace PowerPointAddIn1
             // Approximate pt-width per character at 12pt bold Calibri
             float approxCharWidth = labelFontSize * 0.65f;
 
+            int   sectionCount   = sections.Count;
+
+            // Dynamically size circles so multi-digit slide numbers (10, 11, 12…)
+            // fit horizontally instead of stacking vertically.
+            bool showNums = navBarSettings.ShowSlideNumbers
+                         || navBarSettings.SlideShapeType == NavBarSettings.ShapeType.NumberOnly;
+            int maxSlideIdx = 0;
+            if (showNums)
+            {
+                for (int si = 1; si <= sectionCount; si++)
+                {
+                    int last = sections.FirstSlide(si) + sections.SlidesCount(si) - 1;
+                    if (last > maxSlideIdx) maxSlideIdx = last;
+                }
+            }
+            int digitCount = Math.Max(1, maxSlideIdx.ToString().Length);
+            float circleSize = showNums
+                ? Math.Max(baseCircleSize, 6f + digitCount * 5f)
+                : baseCircleSize;
+
             // Height of one band = pad + label + gap + circles + pad
             float bandHeight = bandPadTop + labelHeight + labelCircleGap + circleSize + bandPadBottom;
 
             float availableWidth = slideWidth - startX * 2f;
-            int   sectionCount   = sections.Count;
 
             // Pass 1 – column width for each section = max(name width, circles width)
             float[] nameWidths = new float[sectionCount + 1];
@@ -1365,6 +1384,36 @@ namespace PowerPointAddIn1
         public void SyncQRToggleButton(bool visible)
         {
             btnToggleQR.Checked = visible;
+        }
+
+        private void addAgendaBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { AgendaGenerator.AddAgenda(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Add Agenda error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void removeAgendaBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { AgendaGenerator.RemoveAgenda(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Remove Agenda error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void refreshAgendaBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try { AgendaGenerator.RefreshAgenda(Globals.ThisAddIn.Application); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Refresh Agenda error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

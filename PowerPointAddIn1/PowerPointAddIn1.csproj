@@ -184,6 +184,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="AgendaGenerator.cs" />
     <Compile Include="BlurFeature.cs" />
     <Compile Include="BlurSettingsForm.cs">
       <SubType>Form</SubType>
