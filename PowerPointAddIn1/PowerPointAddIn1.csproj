@@ -206,6 +206,10 @@
     <Compile Include="MyRibbon.Designer.cs">
       <DependentUpon>MyRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="PositionLabService.cs" />
+    <Compile Include="PositionsLabControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -222,6 +226,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NavBarColorSettings.resx">
       <DependentUpon>NavBarColorSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PositionsLabControl.resx">
+      <DependentUpon>PositionsLabControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -55,6 +55,7 @@ namespace PowerPointAddIn1
             this.hyperlinkgroup = this.Factory.CreateRibbonGroup();
             this.SlideNobox = this.Factory.CreateRibbonEditBox();
             this.group3 = this.Factory.CreateRibbonGroup();
+            this.positionsLabGroup = this.Factory.CreateRibbonGroup();
             this.btnCreateSubsection = this.Factory.CreateRibbonButton();
             this.addAgendaBtn = this.Factory.CreateRibbonButton();
             this.removeAgendaBtn = this.Factory.CreateRibbonButton();
@@ -85,6 +86,7 @@ namespace PowerPointAddIn1
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
             this.selecthypbtn = this.Factory.CreateRibbonButton();
             this.btnToggleQR = this.Factory.CreateRibbonToggleButton();
+            this.positionsLabBtn = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
@@ -94,6 +96,7 @@ namespace PowerPointAddIn1
             this.effectGruop.SuspendLayout();
             this.hyperlinkgroup.SuspendLayout();
             this.group3.SuspendLayout();
+            this.positionsLabGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab1
@@ -107,6 +110,7 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.effectGruop);
             this.tab1.Groups.Add(this.hyperlinkgroup);
             this.tab1.Groups.Add(this.group3);
+            this.tab1.Groups.Add(this.positionsLabGroup);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
             // 
@@ -240,6 +244,12 @@ namespace PowerPointAddIn1
             this.group3.Items.Add(this.btnToggleQR);
             this.group3.Label = "QR Code";
             this.group3.Name = "group3";
+            // 
+            // positionsLabGroup
+            // 
+            this.positionsLabGroup.Items.Add(this.positionsLabBtn);
+            this.positionsLabGroup.Label = "Allignment";
+            this.positionsLabGroup.Name = "positionsLabGroup";
             // 
             // btnCreateSubsection
             // 
@@ -473,6 +483,15 @@ namespace PowerPointAddIn1
             this.btnToggleQR.ShowImage = true;
             this.btnToggleQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnToggleQR_Click);
             // 
+            // positionsLabBtn
+            // 
+            this.positionsLabBtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.positionsLabBtn.Image = ((System.Drawing.Image)(resources.GetObject("positionsLabBtn.Image")));
+            this.positionsLabBtn.Label = "Positions Lab";
+            this.positionsLabBtn.Name = "positionsLabBtn";
+            this.positionsLabBtn.ShowImage = true;
+            this.positionsLabBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.positionsLabBtn_Click);
+            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -497,6 +516,8 @@ namespace PowerPointAddIn1
             this.hyperlinkgroup.PerformLayout();
             this.group3.ResumeLayout(false);
             this.group3.PerformLayout();
+            this.positionsLabGroup.ResumeLayout(false);
+            this.positionsLabGroup.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -553,5 +574,7 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton addAgendaBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton removeAgendaBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton refreshAgendaBtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup positionsLabGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton positionsLabBtn;
     }
 }

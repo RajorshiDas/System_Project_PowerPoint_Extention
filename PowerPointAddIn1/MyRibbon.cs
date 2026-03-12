@@ -1386,6 +1386,11 @@ namespace PowerPointAddIn1
             btnToggleQR.Checked = visible;
         }
 
+        private void positionsLabBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.TogglePositionsLabPane();
+        }
+
         private void addAgendaBtn_Click(object sender, RibbonControlEventArgs e)
         {
             try { AgendaGenerator.AddAgenda(Globals.ThisAddIn.Application); }

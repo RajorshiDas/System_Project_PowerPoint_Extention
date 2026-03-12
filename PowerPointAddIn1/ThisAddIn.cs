@@ -13,6 +13,7 @@ namespace PowerPointAddIn1
     {
         private MyRibbon ribbon;
         private CustomTaskPane _qrTaskPane;
+        public CustomTaskPane PositionsLabTaskPane;
 
         public CustomTaskPane QRTaskPane
         {
@@ -30,6 +31,13 @@ namespace PowerPointAddIn1
             _qrTaskPane.Width = 260;
             _qrTaskPane.Visible = false;
             _qrTaskPane.VisibleChanged += QRTaskPane_VisibleChanged;
+
+            // Create the Positions Lab task pane (hidden by default)
+            var positionsLabControl = new PositionsLabControl();
+            PositionsLabTaskPane = this.CustomTaskPanes.Add(positionsLabControl, "Positions Lab");
+            PositionsLabTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
+            PositionsLabTaskPane.Width = 260;
+            PositionsLabTaskPane.Visible = false;
         }
 
         private void QRTaskPane_VisibleChanged(object sender, EventArgs e)
@@ -39,6 +47,14 @@ namespace PowerPointAddIn1
             if (ribbon != null)
             {
                 ribbon.SyncQRToggleButton(_qrTaskPane.Visible);
+            }
+        }
+
+        public void TogglePositionsLabPane()
+        {
+            if (PositionsLabTaskPane != null)
+            {
+                PositionsLabTaskPane.Visible = !PositionsLabTaskPane.Visible;
             }
         }
 
