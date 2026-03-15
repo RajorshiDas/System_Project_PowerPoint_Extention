@@ -64,20 +64,20 @@ namespace PowerPointAddIn1
 
             y += 10;
 
-            // --- DISTRIBUTE section header ---
-            var lblDistribute = new Label
+            // --- REFERENCE ALIGN section header ---
+            var lblRefAlign = new Label
             {
-                Text = "DISTRIBUTE",
+                Text = "REFERENCE ALIGN",
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 ForeColor = Color.DarkSlateGray,
                 Location = new Point(leftMargin, y),
                 AutoSize = true
             };
-            this.Controls.Add(lblDistribute);
-            y += lblDistribute.Height + spacing;
+            this.Controls.Add(lblRefAlign);
+            y += lblRefAlign.Height + spacing;
 
-            y = AddButton("Distribute Horizontal", CreateIcon(IconKind.DistributeHorizontal), y, leftMargin, btnWidth, btnHeight, BtnDistributeHorizontal_Click);
-            y = AddButton("Distribute Vertical", CreateIcon(IconKind.DistributeVertical), y, leftMargin, btnWidth, btnHeight, BtnDistributeVertical_Click);
+            y = AddButton("Align Horizontal", CreateIcon(IconKind.AlignHorizontal), y, leftMargin, btnWidth, btnHeight, BtnAlignHorizontal_Click);
+            y = AddButton("Align Vertical", CreateIcon(IconKind.AlignVertical), y, leftMargin, btnWidth, btnHeight, BtnAlignVertical_Click);
 
             y += 10;
 
@@ -110,7 +110,7 @@ namespace PowerPointAddIn1
         private enum IconKind
         {
             AlignLeft, AlignRight, AlignTop, AlignBottom, AlignCenter,
-            AlignRadially, DistributeHorizontal, DistributeVertical,
+            AlignRadially, AlignHorizontal, AlignVertical,
             Swap, SelectAll, ClearSelection
         }
 
@@ -158,25 +158,37 @@ namespace PowerPointAddIn1
                         break;
 
                     case IconKind.AlignRadially:
-                        g.DrawEllipse(pen, 3, 3, 10, 10);       // circle
-                        g.FillEllipse(brush, 7, 1, 3, 3);       // dot top
-                        g.FillEllipse(brush, 11, 7, 3, 3);      // dot right
-                        g.FillEllipse(brush, 7, 11, 3, 3);      // dot bottom
-                        g.FillEllipse(brush, 1, 7, 3, 3);       // dot left
+                        // Origin / reference dot at centre
+                        g.FillEllipse(brush, 6, 6, 4, 4);
+                        // Radius circle (dashed guide)
+                        var radDash = new Pen(Color.FromArgb(120, 120, 120), 1f) { DashStyle = DashStyle.Dot };
+                        g.DrawEllipse(radDash, 2, 2, 12, 12);
+                        radDash.Dispose();
+                        // Distance-setter: filled dot on the radius (top)
+                        g.FillEllipse(brush, 6, 0, 4, 4);
+                        // Shapes to align: hollow dots on the same radius (right & left)
+                        g.DrawEllipse(pen, 12, 6, 3, 3);
+                        g.DrawEllipse(pen, 1, 6, 3, 3);
                         break;
 
-                    case IconKind.DistributeHorizontal:
-                        g.DrawLine(pen, 1, 1, 1, 14);           // left edge
-                        g.DrawLine(pen, 14, 1, 14, 14);         // right edge
-                        g.FillRectangle(brush, 4, 4, 3, 8);
-                        g.FillRectangle(brush, 9, 4, 3, 8);
+                    // AlignHorizontal: reference shape on left with centre line; other shapes snapping to it
+                    case IconKind.AlignHorizontal:
+                        // horizontal center guide line
+                        g.DrawLine(pen, 1, 8, 14, 8);
+                        // reference shape (left, straddles the line)
+                        g.FillRectangle(brush, 1, 5, 5, 6);
+                        // other shape snapping to the same Y centre
+                        g.DrawRectangle(pen, 8, 5, 5, 6);
                         break;
 
-                    case IconKind.DistributeVertical:
-                        g.DrawLine(pen, 1, 1, 14, 1);           // top edge
-                        g.DrawLine(pen, 1, 14, 14, 14);         // bottom edge
-                        g.FillRectangle(brush, 4, 4, 8, 3);
-                        g.FillRectangle(brush, 4, 9, 8, 3);
+                    // AlignVertical: reference shape on top with centre line; other shapes snapping to it
+                    case IconKind.AlignVertical:
+                        // vertical center guide line
+                        g.DrawLine(pen, 8, 1, 8, 14);
+                        // reference shape (top, straddles the line)
+                        g.FillRectangle(brush, 5, 1, 6, 5);
+                        // other shape snapping to the same X centre
+                        g.DrawRectangle(pen, 5, 8, 6, 5);
                         break;
 
                     case IconKind.Swap:
@@ -236,14 +248,14 @@ namespace PowerPointAddIn1
             ExecuteAction(PositionLabService.AlignCenter);
         }
 
-        private void BtnDistributeHorizontal_Click(object sender, EventArgs e)
+        private void BtnAlignHorizontal_Click(object sender, EventArgs e)
         {
-            ExecuteAction(PositionLabService.DistributeHorizontal);
+            ExecuteAction(PositionLabService.AlignHorizontal);
         }
 
-        private void BtnDistributeVertical_Click(object sender, EventArgs e)
+        private void BtnAlignVertical_Click(object sender, EventArgs e)
         {
-            ExecuteAction(PositionLabService.DistributeVertical);
+            ExecuteAction(PositionLabService.AlignVertical);
         }
 
         private void BtnSwap_Click(object sender, EventArgs e)
@@ -263,7 +275,9 @@ namespace PowerPointAddIn1
                 int count = PositionLabService.CaptureSelection(Globals.ThisAddIn.Application);
                 if (count > 0)
                 {
-                    _lblSelectionStatus.Text = $"Selection: Locked ({count} shape{(count == 1 ? "" : "s")})";
+                    var names = PositionLabService.GetCapturedNames();
+                    string order = string.Join(", ", names);
+                    _lblSelectionStatus.Text = $"Locked ({count}): {order}";
                     _lblSelectionStatus.ForeColor = Color.FromArgb(0, 120, 60);
                 }
                 else

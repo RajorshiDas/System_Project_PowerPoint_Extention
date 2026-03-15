@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using Office = Microsoft.Office.Core;
 
 namespace PowerPointAddIn1
 {
@@ -54,8 +55,9 @@ namespace PowerPointAddIn1
         public static void AlignLeft(PowerPoint.Application app)
         {
             var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 1) return;
+            if (shapes.Count < 2) return;
 
+            // Shape closest to the left edge of the slide is the anchor
             float minLeft = shapes.Min(s => s.Left);
             foreach (var shape in shapes)
                 shape.Left = minLeft;
@@ -64,8 +66,9 @@ namespace PowerPointAddIn1
         public static void AlignRight(PowerPoint.Application app)
         {
             var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 1) return;
+            if (shapes.Count < 2) return;
 
+            // Shape closest to the right edge of the slide is the anchor
             float maxRight = shapes.Max(s => s.Left + s.Width);
             foreach (var shape in shapes)
                 shape.Left = maxRight - shape.Width;
@@ -74,8 +77,9 @@ namespace PowerPointAddIn1
         public static void AlignTop(PowerPoint.Application app)
         {
             var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 1) return;
+            if (shapes.Count < 2) return;
 
+            // Shape closest to the top edge of the slide is the anchor
             float minTop = shapes.Min(s => s.Top);
             foreach (var shape in shapes)
                 shape.Top = minTop;
@@ -84,68 +88,59 @@ namespace PowerPointAddIn1
         public static void AlignBottom(PowerPoint.Application app)
         {
             var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 1) return;
+            if (shapes.Count < 2) return;
 
+            // Shape closest to the bottom edge of the slide is the anchor
             float maxBottom = shapes.Max(s => s.Top + s.Height);
             foreach (var shape in shapes)
                 shape.Top = maxBottom - shape.Height;
         }
 
+        /// <summary>
+        /// Aligns all other shapes to the horizontal center (Y midpoint) of the
+        /// first / reference shape, leaving their X positions unchanged.
+        /// </summary>
+        public static void AlignHorizontal(PowerPoint.Application app)
+        {
+            var shapes = GetSelectedShapes(app);
+            if (shapes.Count < 2) return;
+
+            // shapes[0] is the reference (first selected / first captured)
+            float referenceCenterY = shapes[0].Top + shapes[0].Height / 2f;
+            for (int i = 1; i < shapes.Count; i++)
+                shapes[i].Top = referenceCenterY - shapes[i].Height / 2f;
+        }
+
+        /// <summary>
+        /// Aligns all other shapes to the vertical center (X midpoint) of the
+        /// first / reference shape, leaving their Y positions unchanged.
+        /// </summary>
+        public static void AlignVertical(PowerPoint.Application app)
+        {
+            var shapes = GetSelectedShapes(app);
+            if (shapes.Count < 2) return;
+
+            // shapes[0] is the reference (first selected / first captured)
+            float referenceCenterX = shapes[0].Left + shapes[0].Width / 2f;
+            for (int i = 1; i < shapes.Count; i++)
+                shapes[i].Left = referenceCenterX - shapes[i].Width / 2f;
+        }
+
+        /// <summary>
+        /// Combines AlignHorizontal and AlignVertical — moves all other shapes
+        /// so that their center coincides with the center of the reference shape.
+        /// </summary>
         public static void AlignCenter(PowerPoint.Application app)
         {
             var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 1) return;
+            if (shapes.Count < 2) return;
 
-            float minLeft = shapes.Min(s => s.Left);
-            float maxRight = shapes.Max(s => s.Left + s.Width);
-            float centerX = (minLeft + maxRight) / 2f;
-
-            float minTop = shapes.Min(s => s.Top);
-            float maxBottom = shapes.Max(s => s.Top + s.Height);
-            float centerY = (minTop + maxBottom) / 2f;
-
-            foreach (var shape in shapes)
+            float referenceCenterX = shapes[0].Left + shapes[0].Width / 2f;
+            float referenceCenterY = shapes[0].Top + shapes[0].Height / 2f;
+            for (int i = 1; i < shapes.Count; i++)
             {
-                shape.Left = centerX - shape.Width / 2f;
-                shape.Top = centerY - shape.Height / 2f;
-            }
-        }
-
-        public static void DistributeHorizontal(PowerPoint.Application app)
-        {
-            var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 3) return;
-
-            var sorted = shapes.OrderBy(s => s.Left).ToList();
-            float totalWidth = sorted.Sum(s => s.Width);
-            float minLeft = sorted.First().Left;
-            float maxRight = sorted.Last().Left + sorted.Last().Width;
-            float spacing = (maxRight - minLeft - totalWidth) / (sorted.Count - 1);
-
-            float currentLeft = minLeft;
-            foreach (var shape in sorted)
-            {
-                shape.Left = currentLeft;
-                currentLeft += shape.Width + spacing;
-            }
-        }
-
-        public static void DistributeVertical(PowerPoint.Application app)
-        {
-            var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 3) return;
-
-            var sorted = shapes.OrderBy(s => s.Top).ToList();
-            float totalHeight = sorted.Sum(s => s.Height);
-            float minTop = sorted.First().Top;
-            float maxBottom = sorted.Last().Top + sorted.Last().Height;
-            float spacing = (maxBottom - minTop - totalHeight) / (sorted.Count - 1);
-
-            float currentTop = minTop;
-            foreach (var shape in sorted)
-            {
-                shape.Top = currentTop;
-                currentTop += shape.Height + spacing;
+                shapes[i].Left = referenceCenterX - shapes[i].Width / 2f;
+                shapes[i].Top = referenceCenterY - shapes[i].Height / 2f;
             }
         }
 
@@ -167,30 +162,67 @@ namespace PowerPointAddIn1
             b.Top = tempTop;
         }
 
+        /// <summary>
+        /// Aligns shapes[2..n] so that each sits at the same radial distance from
+        /// the reference object (shapes[0]) as the distance-setter (shapes[1]).
+        ///
+        /// Selection order:
+        ///   shapes[0]  – reference object  (the origin / centre)
+        ///   shapes[1]  – distance-setter   (defines the radius; its position is NOT changed)
+        ///   shapes[2+] – objects to align  (each keeps its current angle from the origin
+        ///                                   but is moved to exactly <radius> away from it)
+        ///
+        /// Requires at least 3 selected shapes.
+        /// If a shape to be aligned sits exactly on the origin its current angle cannot
+        /// be determined; it is placed directly above the origin as a safe fallback.
+        /// </summary>
         public static void AlignRadially(PowerPoint.Application app)
         {
             var shapes = GetSelectedShapes(app);
-            if (shapes.Count < 2) return;
+            if (shapes.Count < 3) return;
 
-            // Find the bounding-box center of all selected shapes
-            float minLeft = shapes.Min(s => s.Left);
-            float maxRight = shapes.Max(s => s.Left + s.Width);
-            float minTop = shapes.Min(s => s.Top);
-            float maxBottom = shapes.Max(s => s.Top + s.Height);
-            float centerX = (minLeft + maxRight) / 2f;
-            float centerY = (minTop + maxBottom) / 2f;
+            // Centre of the reference object (origin)
+            float originX = shapes[0].Left + shapes[0].Width / 2f;
+            float originY = shapes[0].Top + shapes[0].Height / 2f;
 
-            // Use half the smaller bounding-box dimension as the radius
-            float radius = Math.Min(maxRight - minLeft, maxBottom - minTop) / 2f;
-            if (radius < 20f) radius = 80f;
+            // Centre of the distance-setter → defines the radius
+            float setterCenterX = shapes[1].Left + shapes[1].Width / 2f;
+            float setterCenterY = shapes[1].Top + shapes[1].Height / 2f;
 
-            double angleStep = 2 * Math.PI / shapes.Count;
+            double dx = setterCenterX - originX;
+            double dy = setterCenterY - originY;
+            double radius = Math.Sqrt(dx * dx + dy * dy);
 
-            for (int i = 0; i < shapes.Count; i++)
+            // If the distance-setter is sitting on the origin, use a safe default
+            if (radius < 1.0) radius = 80.0;
+
+            // Move each shape-to-align (index 2 and beyond)
+            for (int i = 2; i < shapes.Count; i++)
             {
-                double angle = -Math.PI / 2 + i * angleStep; // start at top
-                shapes[i].Left = centerX + (float)(radius * Math.Cos(angle)) - shapes[i].Width / 2f;
-                shapes[i].Top  = centerY + (float)(radius * Math.Sin(angle)) - shapes[i].Height / 2f;
+                float shapeCenterX = shapes[i].Left + shapes[i].Width / 2f;
+                float shapeCenterY = shapes[i].Top + shapes[i].Height / 2f;
+
+                double adx = shapeCenterX - originX;
+                double ady = shapeCenterY - originY;
+                double currentDist = Math.Sqrt(adx * adx + ady * ady);
+
+                double angle;
+                if (currentDist < 1.0)
+                {
+                    // Shape is on the origin — place it directly above as a fallback
+                    angle = -Math.PI / 2.0;
+                }
+                else
+                {
+                    angle = Math.Atan2(ady, adx);
+                }
+
+                // Position the shape so its centre is exactly <radius> from the origin
+                float newCenterX = originX + (float)(radius * Math.Cos(angle));
+                float newCenterY = originY + (float)(radius * Math.Sin(angle));
+
+                shapes[i].Left = newCenterX - shapes[i].Width / 2f;
+                shapes[i].Top = newCenterY - shapes[i].Height / 2f;
             }
         }
 
@@ -232,11 +264,16 @@ namespace PowerPointAddIn1
                 if (_capturedSlideIndex > 0 && slide.SlideIndex != _capturedSlideIndex)
                     return result;
 
-                var nameSet = new HashSet<string>(_capturedShapeNames);
+                // Build a lookup from the slide shapes
+                var lookup = new Dictionary<string, PowerPoint.Shape>();
                 foreach (PowerPoint.Shape shape in slide.Shapes)
+                    lookup[shape.Name] = shape;
+
+                // Return shapes in the original selection order
+                foreach (string name in _capturedShapeNames)
                 {
-                    if (nameSet.Contains(shape.Name))
-                        result.Add(shape);
+                    if (lookup.TryGetValue(name, out PowerPoint.Shape found))
+                        result.Add(found);
                 }
             }
             catch
@@ -244,6 +281,11 @@ namespace PowerPointAddIn1
                 // Slide or shapes no longer valid
             }
             return result;
+        }
+
+        public static IReadOnlyList<string> GetCapturedNames()
+        {
+            return _capturedShapeNames;
         }
     }
 }
