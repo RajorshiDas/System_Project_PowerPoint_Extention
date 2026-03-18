@@ -15,7 +15,6 @@ namespace PowerPointAddIn1
         private CustomTaskPane _qrTaskPane;
         public CustomTaskPane PositionsLabTaskPane;
         public CustomTaskPane ResizeLabTaskPane;
-        private CustomTaskPane _formatCopierTaskPane;
 
         public CustomTaskPane QRTaskPane
         {
@@ -73,20 +72,6 @@ namespace PowerPointAddIn1
             {
                 ResizeLabTaskPane.Visible = !ResizeLabTaskPane.Visible;
             }
-        }
-
-        public void ToggleFormatCopierPane()
-        {
-            if (_formatCopierTaskPane == null)
-            {
-                var control = new FormatCopierPane();
-                _formatCopierTaskPane = Globals.ThisAddIn.CustomTaskPanes.Add(control, "Format Copier");
-                _formatCopierTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
-                _formatCopierTaskPane.Width = 280;
-                _formatCopierTaskPane.Visible = false;
-            }
-
-            _formatCopierTaskPane.Visible = !_formatCopierTaskPane.Visible;
         }
 
         private void Application_WindowSelectionChange(PowerPoint.Selection Sel)
