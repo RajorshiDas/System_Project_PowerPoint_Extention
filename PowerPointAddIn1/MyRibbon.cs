@@ -17,6 +17,10 @@ namespace PowerPointAddIn1
         private int _hypSourceSlideIndex = -1;
         private readonly List<string> _hypShapeNames = new List<string>();
 
+        // Resize Lab state
+        private readonly ResizeLabService _resizeLabService = new ResizeLabService();
+        private ReferenceMode _resizeReferenceMode = ReferenceMode.FirstSelected;
+
         private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             UpdateSectionInfo();
@@ -1389,6 +1393,93 @@ namespace PowerPointAddIn1
         private void positionsLabBtn_Click(object sender, RibbonControlEventArgs e)
         {
             Globals.ThisAddIn.TogglePositionsLabPane();
+        }
+
+        private bool TryGetResizeSelection(int minimumCount, out List<PowerPoint.Shape> shapes)
+        {
+            shapes = _resizeLabService.GetSelectedShapes(Globals.ThisAddIn.Application);
+            if (shapes == null || shapes.Count < minimumCount)
+            {
+                string message = minimumCount <= 1
+                    ? "Please select at least one shape."
+                    : $"Please select at least {minimumCount} shapes.";
+
+                MessageBox.Show(message, "Resize Lab", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void stretchLeftButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.StretchToLeft(shapes, _resizeReferenceMode);
+        }
+
+        private void stretchRightButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.StretchToRight(shapes, _resizeReferenceMode);
+        }
+
+        private void stretchTopButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.StretchToTop(shapes, _resizeReferenceMode);
+        }
+
+        private void stretchBottomButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.StretchToBottom(shapes, _resizeReferenceMode);
+        }
+
+        private void matchWidthButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.MatchWidth(shapes, _resizeReferenceMode);
+        }
+
+        private void matchHeightButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.MatchHeight(shapes, _resizeReferenceMode);
+        }
+
+        private void matchBothButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(2, out var shapes)) return;
+            _resizeLabService.MatchBoth(shapes, _resizeReferenceMode);
+        }
+
+        private void fitWidthButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(1, out var shapes)) return;
+            _resizeLabService.FitToSlideWidth(shapes);
+        }
+
+        private void fitHeightButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(1, out var shapes)) return;
+            _resizeLabService.FitToSlideHeight(shapes);
+        }
+
+        private void fitBothButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!TryGetResizeSelection(1, out var shapes)) return;
+            _resizeLabService.FitToSlideBoth(shapes);
+        }
+
+        private void resizeSettingsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            using (var settingsForm = new ResizeLabSettingsForm(_resizeReferenceMode))
+            {
+                if (settingsForm.ShowDialog() == DialogResult.OK)
+                {
+                    _resizeReferenceMode = settingsForm.SelectedReferenceMode;
+                }
+            }
         }
 
         private void resizeBtn_Click(object sender, RibbonControlEventArgs e)
