@@ -95,5 +95,23 @@ namespace PowerPointAddIn1
                 ? ReferenceMode.OutermostObject
                 : ReferenceMode.FirstSelected;
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // ResizeLabSettingsForm
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "ResizeLabSettingsForm";
+            this.Load += new System.EventHandler(this.ResizeLabSettingsForm_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void ResizeLabSettingsForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

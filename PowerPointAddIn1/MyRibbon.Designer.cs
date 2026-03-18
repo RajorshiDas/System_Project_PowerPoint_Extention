@@ -78,6 +78,7 @@ namespace PowerPointAddIn1
             this.magniaddbtn = this.Factory.CreateRibbonButton();
             this.magsetingsbtn = this.Factory.CreateRibbonButton();
             this.selectEffecctdtn = this.Factory.CreateRibbonButton();
+            this.stickynotesbtn = this.Factory.CreateRibbonButton();
             this.hyperlinkgroup = this.Factory.CreateRibbonGroup();
             this.SlideNobox = this.Factory.CreateRibbonEditBox();
             this.crtHypBtn = this.Factory.CreateRibbonButton();
@@ -89,6 +90,8 @@ namespace PowerPointAddIn1
             this.positionsLabBtn = this.Factory.CreateRibbonButton();
             this.Resize_group = this.Factory.CreateRibbonGroup();
             this.resizeBtn = this.Factory.CreateRibbonButton();
+            this.copygruop = this.Factory.CreateRibbonGroup();
+            this.copymorebtn = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.group2.SuspendLayout();
@@ -100,6 +103,7 @@ namespace PowerPointAddIn1
             this.group3.SuspendLayout();
             this.positionsLabGroup.SuspendLayout();
             this.Resize_group.SuspendLayout();
+            this.copygruop.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab1
@@ -115,6 +119,7 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.group3);
             this.tab1.Groups.Add(this.positionsLabGroup);
             this.tab1.Groups.Add(this.Resize_group);
+            this.tab1.Groups.Add(this.copygruop);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
             // 
@@ -320,6 +325,7 @@ namespace PowerPointAddIn1
             // 
             this.effectGruop.Items.Add(this.effectsplitbtn);
             this.effectGruop.Items.Add(this.selectEffecctdtn);
+            this.effectGruop.Items.Add(this.stickynotesbtn);
             this.effectGruop.Label = "Effects";
             this.effectGruop.Name = "effectGruop";
             // 
@@ -426,6 +432,13 @@ namespace PowerPointAddIn1
             this.selectEffecctdtn.ShowImage = true;
             this.selectEffecctdtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectEffecctdtn_Click);
             // 
+            // stickynotesbtn
+            // 
+            this.stickynotesbtn.Image = ((System.Drawing.Image)(resources.GetObject("stickynotesbtn.Image")));
+            this.stickynotesbtn.Label = "Sticky Notes";
+            this.stickynotesbtn.Name = "stickynotesbtn";
+            this.stickynotesbtn.ShowImage = true;
+            // 
             // hyperlinkgroup
             // 
             this.hyperlinkgroup.Items.Add(this.SlideNobox);
@@ -511,6 +524,21 @@ namespace PowerPointAddIn1
             this.resizeBtn.ShowImage = true;
             this.resizeBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.resizeBtn_Click);
             // 
+            // copygruop
+            // 
+            this.copygruop.Items.Add(this.copymorebtn);
+            this.copygruop.Label = "Copy and More";
+            this.copygruop.Name = "copygruop";
+            // 
+            // copymorebtn
+            // 
+            this.copymorebtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.copymorebtn.Image = ((System.Drawing.Image)(resources.GetObject("copymorebtn.Image")));
+            this.copymorebtn.Label = "Copy More";
+            this.copymorebtn.Name = "copymorebtn";
+            this.copymorebtn.ShowImage = true;
+            this.copymorebtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.copymorebtn_Click);
+            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -539,6 +567,8 @@ namespace PowerPointAddIn1
             this.positionsLabGroup.PerformLayout();
             this.Resize_group.ResumeLayout(false);
             this.Resize_group.PerformLayout();
+            this.copygruop.ResumeLayout(false);
+            this.copygruop.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -599,5 +629,8 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton positionsLabBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton resizeBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup Resize_group;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton stickynotesbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup copygruop;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton copymorebtn;
     }
 }

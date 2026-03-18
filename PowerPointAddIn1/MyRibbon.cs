@@ -1487,6 +1487,11 @@ namespace PowerPointAddIn1
             Globals.ThisAddIn.ToggleResizeLabPane();
         }
 
+        private void copymorebtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.ToggleFormatCopierPane();
+        }
+
         private void addAgendaBtn_Click(object sender, RibbonControlEventArgs e)
         {
             try { AgendaGenerator.AddAgenda(Globals.ThisAddIn.Application); }

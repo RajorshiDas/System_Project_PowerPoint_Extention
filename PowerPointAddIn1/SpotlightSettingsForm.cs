@@ -212,5 +212,23 @@ namespace PowerPointAddIn1
                 SoftEdgesPoints     = s.SoftEdgesPoints,
                 OverlayColor        = s.OverlayColor
             };
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // SpotlightSettingsForm
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "SpotlightSettingsForm";
+            this.Load += new System.EventHandler(this.SpotlightSettingsForm_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void SpotlightSettingsForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

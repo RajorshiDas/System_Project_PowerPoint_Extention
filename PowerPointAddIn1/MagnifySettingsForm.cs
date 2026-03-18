@@ -229,5 +229,23 @@ namespace PowerPointAddIn1
                 BorderThickness     = s.BorderThickness,
                 SoftEdgesPoints     = s.SoftEdgesPoints
             };
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // MagnifySettingsForm
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "MagnifySettingsForm";
+            this.Load += new System.EventHandler(this.MagnifySettingsForm_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void MagnifySettingsForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
