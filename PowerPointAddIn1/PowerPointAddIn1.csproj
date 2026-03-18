@@ -192,6 +192,7 @@
     <Compile Include="FormatCopierPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="FormatCopierService.cs" />
     <Compile Include="MagnifyFeature.cs" />
     <Compile Include="MagnifySettingsForm.cs">
       <SubType>Form</SubType>
