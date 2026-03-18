@@ -189,7 +189,7 @@
     <Compile Include="BlurSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormatCopierControl.cs">
+    <Compile Include="FormatCopierPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="MagnifyFeature.cs" />

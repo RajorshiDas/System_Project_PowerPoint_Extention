@@ -79,7 +79,7 @@ namespace PowerPointAddIn1
         {
             if (_formatCopierTaskPane == null)
             {
-                var control = new FormatCopierControl();
+                var control = new FormatCopierPane();
                 _formatCopierTaskPane = Globals.ThisAddIn.CustomTaskPanes.Add(control, "Format Copier");
                 _formatCopierTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
                 _formatCopierTaskPane.Width = 280;
