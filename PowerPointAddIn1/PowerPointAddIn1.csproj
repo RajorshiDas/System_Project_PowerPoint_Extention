@@ -216,6 +216,10 @@
     <Compile Include="QRCodeControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ResizeLabControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ResizeLabService.cs" />
     <Compile Include="SpotlightFeature.cs" />
     <Compile Include="SpotlightSettingsForm.cs">
       <SubType>Form</SubType>

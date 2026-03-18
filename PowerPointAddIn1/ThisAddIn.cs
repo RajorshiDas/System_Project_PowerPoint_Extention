@@ -14,6 +14,7 @@ namespace PowerPointAddIn1
         private MyRibbon ribbon;
         private CustomTaskPane _qrTaskPane;
         public CustomTaskPane PositionsLabTaskPane;
+        public CustomTaskPane ResizeLabTaskPane;
 
         public CustomTaskPane QRTaskPane
         {
@@ -38,6 +39,13 @@ namespace PowerPointAddIn1
             PositionsLabTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
             PositionsLabTaskPane.Width = 260;
             PositionsLabTaskPane.Visible = false;
+
+            // Create the Resize Lab task pane (hidden by default)
+            var resizeLabControl = new ResizeLabControl();
+            ResizeLabTaskPane = this.CustomTaskPanes.Add(resizeLabControl, "Resize Lab");
+            ResizeLabTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
+            ResizeLabTaskPane.Width = 260;
+            ResizeLabTaskPane.Visible = false;
         }
 
         private void QRTaskPane_VisibleChanged(object sender, EventArgs e)
@@ -55,6 +63,14 @@ namespace PowerPointAddIn1
             if (PositionsLabTaskPane != null)
             {
                 PositionsLabTaskPane.Visible = !PositionsLabTaskPane.Visible;
+            }
+        }
+
+        public void ToggleResizeLabPane()
+        {
+            if (ResizeLabTaskPane != null)
+            {
+                ResizeLabTaskPane.Visible = !ResizeLabTaskPane.Visible;
             }
         }
 

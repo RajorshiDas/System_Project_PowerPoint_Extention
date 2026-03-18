@@ -1391,6 +1391,11 @@ namespace PowerPointAddIn1
             Globals.ThisAddIn.TogglePositionsLabPane();
         }
 
+        private void resizeBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.ToggleResizeLabPane();
+        }
+
         private void addAgendaBtn_Click(object sender, RibbonControlEventArgs e)
         {
             try { AgendaGenerator.AddAgenda(Globals.ThisAddIn.Application); }
