@@ -6,6 +6,8 @@ using System.Xml.Linq;
 using Microsoft.Office.Tools;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
+using System.Net;
+
 
 namespace PowerPointAddIn1
 {
@@ -15,6 +17,9 @@ namespace PowerPointAddIn1
         private CustomTaskPane _qrTaskPane;
         public CustomTaskPane PositionsLabTaskPane;
         public CustomTaskPane ResizeLabTaskPane;
+        public CustomTaskPane QuizTaskPane;
+
+
 
         public CustomTaskPane QRTaskPane
         {
@@ -24,6 +29,7 @@ namespace PowerPointAddIn1
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             this.Application.WindowSelectionChange += Application_WindowSelectionChange;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             // Create the QR Code task pane (hidden by default)
             var qrControl = new QRCodeControl();
@@ -46,6 +52,13 @@ namespace PowerPointAddIn1
             ResizeLabTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
             ResizeLabTaskPane.Width = 260;
             ResizeLabTaskPane.Visible = false;
+
+            // Create the Quiz task pane (visible by default for testing)
+            var quizPaneControl = new QuizPaneControl();
+            QuizTaskPane = this.CustomTaskPanes.Add(quizPaneControl, "AI Quiz Generator");
+            QuizTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionRight;
+            QuizTaskPane.Width = 320;
+            QuizTaskPane.Visible = true;
         }
 
         private void QRTaskPane_VisibleChanged(object sender, EventArgs e)

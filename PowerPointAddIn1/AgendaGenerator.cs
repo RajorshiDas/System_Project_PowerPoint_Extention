@@ -51,10 +51,13 @@ namespace PowerPointAddIn1
         private const float ContentRightMargin = 50f;
         private const float BottomMargin = 40f;
         private const float PageNumWidth = 50f;
+        private const float NumberColumnGap = 10f;
 
         // ── Font sizes ─────────────────────────────────────────────────
         private const float SectionFontSize = 16f;
         private const float SubsectionFontSize = 13f;
+        private const string SectionFontName = "Calibri";
+        private const string SubsectionFontName = "Calibri";
 
         // ── Spacing ────────────────────────────────────────────────────
         private const float SectionLineHeight = 28f;
@@ -384,7 +387,7 @@ namespace PowerPointAddIn1
             shape.TextFrame.TextRange.Font.Size = TitleFontSize;
             shape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
             shape.TextFrame.TextRange.Font.Color.RGB = ColorTranslator.ToOle(TextColor);
-            shape.TextFrame.TextRange.Font.Name = "Calibri";
+            shape.TextFrame.TextRange.Font.Name = SectionFontName;
             shape.Line.Visible = Office.MsoTriState.msoFalse;
             shape.Fill.Visible = Office.MsoTriState.msoFalse;
         }
@@ -419,16 +422,28 @@ namespace PowerPointAddIn1
             AgendaItem item, float y, float contentWidth, float slideWidth,
             PowerPoint.Presentation pres, int agendaCount)
         {
+            float numberLeft = slideWidth - ContentRightMargin - PageNumWidth;
+            float maxTextWidth = item.SlideNumber > 0
+                ? Math.Max(20f, numberLeft - ContentLeft - NumberColumnGap)
+                : Math.Max(20f, contentWidth);
+
+            string sectionText = FitTextWithEllipsis(
+                item.Text,
+                maxTextWidth,
+                SectionFontName,
+                SectionFontSize,
+                true);
+
             // Section name (left-aligned, bold)
             PowerPoint.Shape nameShape = slide.Shapes.AddTextbox(
                 Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                ContentLeft, y, contentWidth - PageNumWidth, SectionLineHeight);
-            nameShape.TextFrame.TextRange.Text = item.Text;
+                ContentLeft, y, maxTextWidth, SectionLineHeight);
+            nameShape.TextFrame.TextRange.Text = sectionText;
             nameShape.TextFrame.TextRange.Font.Size = SectionFontSize;
             nameShape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
             nameShape.TextFrame.TextRange.Font.Color.RGB =
                 ColorTranslator.ToOle(TextColor);
-            nameShape.TextFrame.TextRange.Font.Name = "Calibri";
+            nameShape.TextFrame.TextRange.Font.Name = SectionFontName;
             nameShape.TextFrame.MarginLeft = 0f;
             nameShape.TextFrame.MarginTop = 3f;
             nameShape.TextFrame.MarginBottom = 3f;
@@ -443,14 +458,14 @@ namespace PowerPointAddIn1
                 // Page number
                 PowerPoint.Shape numShape = slide.Shapes.AddTextbox(
                     Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                    slideWidth - ContentRightMargin - PageNumWidth, y,
+                    numberLeft, y,
                     PageNumWidth, SectionLineHeight);
                 numShape.TextFrame.TextRange.Text = item.SlideNumber.ToString();
                 numShape.TextFrame.TextRange.Font.Size = SectionFontSize;
                 numShape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
                 numShape.TextFrame.TextRange.Font.Color.RGB =
                     ColorTranslator.ToOle(TextColor);
-                numShape.TextFrame.TextRange.Font.Name = "Calibri";
+                numShape.TextFrame.TextRange.Font.Name = SectionFontName;
                 numShape.TextFrame.TextRange.ParagraphFormat.Alignment =
                     PowerPoint.PpParagraphAlignment.ppAlignRight;
                 numShape.TextFrame.MarginRight = 6f;
@@ -467,23 +482,36 @@ namespace PowerPointAddIn1
             AgendaItem item, float y, float contentWidth, float slideWidth,
             PowerPoint.Presentation pres, int agendaCount)
         {
-            float textWidth = contentWidth - SubsectionIndent - PageNumWidth;
+            float numberLeft = slideWidth - ContentRightMargin - PageNumWidth;
+            float textLeft = ContentLeft + SubsectionIndent;
+            float textWidth = Math.Max(20f, numberLeft - textLeft - NumberColumnGap);
 
-            // Build display text: bullet + name + dot leader
-            string bullet = "\u2022  ";
-            string nameText = bullet + item.Text;
-            string dots = BuildDotLeader(nameText, textWidth, SubsectionFontSize);
-            string fullText = nameText + " " + dots;
+            // Build display text with measured truncation + measured dot leader
+            string bullet = "\u2022 ";
+            float bulletWidth = MeasureTextWidth(bullet, SubsectionFontName, SubsectionFontSize, false);
+            float maxNameWidth = Math.Max(10f, textWidth - bulletWidth);
+            string fittedName = FitTextWithEllipsis(
+                item.Text,
+                maxNameWidth,
+                SubsectionFontName,
+                SubsectionFontSize,
+                false);
+
+            string leftText = bullet + fittedName;
+            float leftTextWidth = MeasureTextWidth(leftText, SubsectionFontName, SubsectionFontSize, false);
+            float dotsWidth = Math.Max(0f, textWidth - leftTextWidth - 4f);
+            string dots = BuildDotLeaderByWidth(dotsWidth, SubsectionFontName, SubsectionFontSize);
+            string fullText = string.IsNullOrEmpty(dots) ? leftText : (leftText + " " + dots);
 
             PowerPoint.Shape textShape = slide.Shapes.AddTextbox(
                 Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                ContentLeft + SubsectionIndent, y, textWidth, SubsectionLineHeight);
+                textLeft, y, textWidth, SubsectionLineHeight);
             textShape.TextFrame.TextRange.Text = fullText;
             textShape.TextFrame.TextRange.Font.Size = SubsectionFontSize;
             textShape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoFalse;
             textShape.TextFrame.TextRange.Font.Color.RGB =
                 ColorTranslator.ToOle(TextColor);
-            textShape.TextFrame.TextRange.Font.Name = "Calibri";
+            textShape.TextFrame.TextRange.Font.Name = SubsectionFontName;
             textShape.TextFrame.MarginLeft = 0f;
             textShape.TextFrame.MarginRight = 0f;
             textShape.TextFrame.MarginTop = 1f;
@@ -497,14 +525,14 @@ namespace PowerPointAddIn1
             // Right-aligned page number
             PowerPoint.Shape numShape = slide.Shapes.AddTextbox(
                 Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                slideWidth - ContentRightMargin - PageNumWidth, y,
+                numberLeft, y,
                 PageNumWidth, SubsectionLineHeight);
             numShape.TextFrame.TextRange.Text = item.SlideNumber.ToString();
             numShape.TextFrame.TextRange.Font.Size = SubsectionFontSize;
             numShape.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoFalse;
             numShape.TextFrame.TextRange.Font.Color.RGB =
                 ColorTranslator.ToOle(TextColor);
-            numShape.TextFrame.TextRange.Font.Name = "Calibri";
+            numShape.TextFrame.TextRange.Font.Name = SubsectionFontName;
             numShape.TextFrame.TextRange.ParagraphFormat.Alignment =
                 PowerPoint.PpParagraphAlignment.ppAlignRight;
             numShape.TextFrame.MarginLeft = 0f;
@@ -548,15 +576,78 @@ namespace PowerPointAddIn1
             catch { }
         }
 
-        private static string BuildDotLeader(
-            string nameText, float boxWidth, float fontSize)
+        private static string FitTextWithEllipsis(
+            string text,
+            float maxWidth,
+            string fontName,
+            float fontSize,
+            bool bold)
         {
-            float charWidth = fontSize * 0.55f;
-            int maxChars = (int)(boxWidth / charWidth);
-            int dotsNeeded = maxChars - nameText.Length - 2;
-            if (dotsNeeded < 3) dotsNeeded = 3;
-            if (dotsNeeded > 50) dotsNeeded = 50;
-            return new string('.', dotsNeeded);
+            if (maxWidth <= 0f) return string.Empty;
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+
+            if (MeasureTextWidth(text, fontName, fontSize, bold) <= maxWidth)
+                return text;
+
+            const string ellipsis = "...";
+            if (MeasureTextWidth(ellipsis, fontName, fontSize, bold) > maxWidth)
+                return string.Empty;
+
+            int low = 0;
+            int high = text.Length;
+            string best = ellipsis;
+
+            while (low <= high)
+            {
+                int mid = (low + high) / 2;
+                string candidate = text.Substring(0, mid) + ellipsis;
+                float w = MeasureTextWidth(candidate, fontName, fontSize, bold);
+
+                if (w <= maxWidth)
+                {
+                    best = candidate;
+                    low = mid + 1;
+                }
+                else
+                {
+                    high = mid - 1;
+                }
+            }
+
+            return best;
+        }
+
+        private static string BuildDotLeaderByWidth(
+            float width,
+            string fontName,
+            float fontSize)
+        {
+            if (width <= 0f) return string.Empty;
+
+            float dotWidth = Math.Max(1f, MeasureTextWidth(".", fontName, fontSize, false));
+            int count = Math.Max(0, (int)(width / dotWidth));
+            if (count < 2) return string.Empty;
+            return new string('.', count);
+        }
+
+        private static float MeasureTextWidth(
+            string text,
+            string fontName,
+            float fontSize,
+            bool bold)
+        {
+            if (string.IsNullOrEmpty(text)) return 0f;
+
+            FontStyle style = bold ? FontStyle.Bold : FontStyle.Regular;
+            using (var font = new Font(fontName, fontSize, style, GraphicsUnit.Point))
+            {
+                Size size = TextRenderer.MeasureText(
+                    text,
+                    font,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine);
+                return size.Width;
+            }
         }
 
         // ================================================================

@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using QRCoder;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
@@ -141,6 +142,7 @@ namespace PowerPointAddIn1
                     QRCodeData qrData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
                     using (var qrCode = new QRCode(qrData))
                     {
+                        picPreview.Image = null;
                         _qrBitmap?.Dispose();
                         _qrBitmap = qrCode.GetGraphic((int)nudSize.Value);
                     }
@@ -178,27 +180,34 @@ namespace PowerPointAddIn1
 
                 PowerPoint.Slide slide = app.ActiveWindow.View.Slide;
 
-                // Save bitmap to a temp file
-                string tempPath = Path.Combine(Path.GetTempPath(), "qrcode_temp.png");
-                _qrBitmap.Save(tempPath, ImageFormat.Png);
+                string tempPath = Path.Combine(Path.GetTempPath(),
+                    "qrcode_" + Guid.NewGuid().ToString("N") + ".png");
 
-                // Insert as a picture centred on the slide
-                float slideWidth = app.ActivePresentation.PageSetup.SlideWidth;
-                float slideHeight = app.ActivePresentation.PageSetup.SlideHeight;
-                float imgSize = 150f; // points
+                try
+                {
+                    // Save bitmap to a unique temp file
+                    _qrBitmap.Save(tempPath, ImageFormat.Png);
 
-                PowerPoint.Shape pic = slide.Shapes.AddPicture(
-                    tempPath,
-                    Microsoft.Office.Core.MsoTriState.msoFalse,
-                    Microsoft.Office.Core.MsoTriState.msoCTrue,
-                    (slideWidth - imgSize) / 2f,
-                    (slideHeight - imgSize) / 2f,
-                    imgSize,
-                    imgSize);
+                    // Insert as a picture centred on the slide
+                    float slideWidth = app.ActivePresentation.PageSetup.SlideWidth;
+                    float slideHeight = app.ActivePresentation.PageSetup.SlideHeight;
+                    float imgSize = 150f; // points
 
-                pic.Name = "QRCode_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                    PowerPoint.Shape pic = slide.Shapes.AddPicture(
+                        tempPath,
+                        Microsoft.Office.Core.MsoTriState.msoFalse,
+                        Microsoft.Office.Core.MsoTriState.msoCTrue,
+                        (slideWidth - imgSize) / 2f,
+                        (slideHeight - imgSize) / 2f,
+                        imgSize,
+                        imgSize);
 
-                try { File.Delete(tempPath); } catch { }
+                    pic.Name = "QRCode_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                }
+                finally
+                {
+                    TryDeleteTempFile(tempPath);
+                }
 
                 MessageBox.Show("QR code inserted into the current slide.", "Success",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -214,9 +223,38 @@ namespace PowerPointAddIn1
         {
             if (disposing)
             {
+                if (picPreview != null)
+                    picPreview.Image = null;
                 _qrBitmap?.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private static void TryDeleteTempFile(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
+
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    if (!File.Exists(path)) return;
+                    File.Delete(path);
+                    return;
+                }
+                catch (IOException)
+                {
+                    Thread.Sleep(50);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Thread.Sleep(50);
+                }
+                catch
+                {
+                    return;
+                }
+            }
         }
     }
 }

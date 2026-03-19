@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
@@ -197,8 +198,8 @@ namespace PowerPointAddIn1
             }
             finally
             {
-                foreach (string f in cropFiles) try { File.Delete(f); } catch { }
-                try { File.Delete(bgFile); } catch { }
+                foreach (string f in cropFiles) TryDeleteTempFile(f);
+                TryDeleteTempFile(bgFile);
             }
         }
 
@@ -225,5 +226,32 @@ namespace PowerPointAddIn1
 
         private static void Warn(string msg, string title) =>
             MessageBox.Show(msg, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+        private static void TryDeleteTempFile(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
+
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    if (!File.Exists(path)) return;
+                    File.Delete(path);
+                    return;
+                }
+                catch (IOException)
+                {
+                    Thread.Sleep(50);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Thread.Sleep(50);
+                }
+                catch
+                {
+                    return;
+                }
+            }
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
 
@@ -8,8 +10,22 @@ namespace PowerPointAddIn1
 {
     public static class PositionLabService
     {
+        private const string FeatureName = "Positions Lab";
+
         private static readonly List<string> _capturedShapeNames = new List<string>();
         private static int _capturedSlideIndex = -1;
+
+        private struct ShapePosition
+        {
+            public float Left;
+            public float Top;
+
+            public ShapePosition(float left, float top)
+            {
+                Left = left;
+                Top = top;
+            }
+        }
 
         public static bool HasCapturedSelection
         {
@@ -28,6 +44,12 @@ namespace PowerPointAddIn1
 
             try
             {
+                if (app == null || app.ActiveWindow == null)
+                {
+                    Warn("PowerPoint window is not available.", "No Active Window");
+                    return 0;
+                }
+
                 PowerPoint.Selection sel = app.ActiveWindow.Selection;
                 if (sel.Type == PowerPoint.PpSelectionType.ppSelectionShapes)
                 {
@@ -38,10 +60,20 @@ namespace PowerPointAddIn1
                     foreach (PowerPoint.Shape shape in sel.ShapeRange)
                         _capturedShapeNames.Add(shape.Name);
                 }
+                else
+                {
+                    Warn("Please select one or more shapes first.", "No Shape Selection");
+                }
             }
-            catch
+            catch (COMException ex)
             {
-                // No valid selection
+                Log("CaptureSelection COM error", ex);
+                Warn("Unable to capture the current selection. Please try again.", "Selection Error");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log("CaptureSelection invalid operation", ex);
+                Warn("Selection is not available in the current view.", "Selection Error");
             }
             return _capturedShapeNames.Count;
         }
@@ -58,9 +90,14 @@ namespace PowerPointAddIn1
             if (shapes.Count < 2) return;
 
             // Shape closest to the left edge of the slide is the anchor
-            float minLeft = shapes.Min(s => s.Left);
-            foreach (var shape in shapes)
-                shape.Left = minLeft;
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float minLeft = selected.Min(s => s.Left);
+                    foreach (var shape in selected)
+                        shape.Left = minLeft;
+                },
+                "Align Left");
         }
 
         public static void AlignRight(PowerPoint.Application app)
@@ -69,9 +106,14 @@ namespace PowerPointAddIn1
             if (shapes.Count < 2) return;
 
             // Shape closest to the right edge of the slide is the anchor
-            float maxRight = shapes.Max(s => s.Left + s.Width);
-            foreach (var shape in shapes)
-                shape.Left = maxRight - shape.Width;
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float maxRight = selected.Max(s => s.Left + s.Width);
+                    foreach (var shape in selected)
+                        shape.Left = maxRight - shape.Width;
+                },
+                "Align Right");
         }
 
         public static void AlignTop(PowerPoint.Application app)
@@ -80,9 +122,14 @@ namespace PowerPointAddIn1
             if (shapes.Count < 2) return;
 
             // Shape closest to the top edge of the slide is the anchor
-            float minTop = shapes.Min(s => s.Top);
-            foreach (var shape in shapes)
-                shape.Top = minTop;
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float minTop = selected.Min(s => s.Top);
+                    foreach (var shape in selected)
+                        shape.Top = minTop;
+                },
+                "Align Top");
         }
 
         public static void AlignBottom(PowerPoint.Application app)
@@ -91,9 +138,14 @@ namespace PowerPointAddIn1
             if (shapes.Count < 2) return;
 
             // Shape closest to the bottom edge of the slide is the anchor
-            float maxBottom = shapes.Max(s => s.Top + s.Height);
-            foreach (var shape in shapes)
-                shape.Top = maxBottom - shape.Height;
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float maxBottom = selected.Max(s => s.Top + s.Height);
+                    foreach (var shape in selected)
+                        shape.Top = maxBottom - shape.Height;
+                },
+                "Align Bottom");
         }
 
         /// <summary>
@@ -106,9 +158,14 @@ namespace PowerPointAddIn1
             if (shapes.Count < 2) return;
 
             // shapes[0] is the reference (first selected / first captured)
-            float referenceCenterY = shapes[0].Top + shapes[0].Height / 2f;
-            for (int i = 1; i < shapes.Count; i++)
-                shapes[i].Top = referenceCenterY - shapes[i].Height / 2f;
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float referenceCenterY = selected[0].Top + selected[0].Height / 2f;
+                    for (int i = 1; i < selected.Count; i++)
+                        selected[i].Top = referenceCenterY - selected[i].Height / 2f;
+                },
+                "Align Horizontal");
         }
 
         /// <summary>
@@ -121,9 +178,14 @@ namespace PowerPointAddIn1
             if (shapes.Count < 2) return;
 
             // shapes[0] is the reference (first selected / first captured)
-            float referenceCenterX = shapes[0].Left + shapes[0].Width / 2f;
-            for (int i = 1; i < shapes.Count; i++)
-                shapes[i].Left = referenceCenterX - shapes[i].Width / 2f;
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float referenceCenterX = selected[0].Left + selected[0].Width / 2f;
+                    for (int i = 1; i < selected.Count; i++)
+                        selected[i].Left = referenceCenterX - selected[i].Width / 2f;
+                },
+                "Align Vertical");
         }
 
         /// <summary>
@@ -135,13 +197,18 @@ namespace PowerPointAddIn1
             var shapes = GetSelectedShapes(app);
             if (shapes.Count < 2) return;
 
-            float referenceCenterX = shapes[0].Left + shapes[0].Width / 2f;
-            float referenceCenterY = shapes[0].Top + shapes[0].Height / 2f;
-            for (int i = 1; i < shapes.Count; i++)
-            {
-                shapes[i].Left = referenceCenterX - shapes[i].Width / 2f;
-                shapes[i].Top = referenceCenterY - shapes[i].Height / 2f;
-            }
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    float referenceCenterX = selected[0].Left + selected[0].Width / 2f;
+                    float referenceCenterY = selected[0].Top + selected[0].Height / 2f;
+                    for (int i = 1; i < selected.Count; i++)
+                    {
+                        selected[i].Left = referenceCenterX - selected[i].Width / 2f;
+                        selected[i].Top = referenceCenterY - selected[i].Height / 2f;
+                    }
+                },
+                "Align Center");
         }
 
         public static void Swap(PowerPoint.Application app)
@@ -149,17 +216,22 @@ namespace PowerPointAddIn1
             var shapes = GetSelectedShapes(app);
             if (shapes.Count != 2) return;
 
-            var a = shapes[0];
-            var b = shapes[1];
+            ExecuteAtomicAlignment(shapes,
+                selected =>
+                {
+                    var a = selected[0];
+                    var b = selected[1];
 
-            float tempLeft = a.Left;
-            float tempTop = a.Top;
+                    float tempLeft = a.Left;
+                    float tempTop = a.Top;
 
-            a.Left = b.Left;
-            a.Top = b.Top;
+                    a.Left = b.Left;
+                    a.Top = b.Top;
 
-            b.Left = tempLeft;
-            b.Top = tempTop;
+                    b.Left = tempLeft;
+                    b.Top = tempTop;
+                },
+                "Swap");
         }
 
         /// <summary>
@@ -181,49 +253,54 @@ namespace PowerPointAddIn1
             var shapes = GetSelectedShapes(app);
             if (shapes.Count < 3) return;
 
-            // Centre of the reference object (origin)
-            float originX = shapes[0].Left + shapes[0].Width / 2f;
-            float originY = shapes[0].Top + shapes[0].Height / 2f;
-
-            // Centre of the distance-setter → defines the radius
-            float setterCenterX = shapes[1].Left + shapes[1].Width / 2f;
-            float setterCenterY = shapes[1].Top + shapes[1].Height / 2f;
-
-            double dx = setterCenterX - originX;
-            double dy = setterCenterY - originY;
-            double radius = Math.Sqrt(dx * dx + dy * dy);
-
-            // If the distance-setter is sitting on the origin, use a safe default
-            if (radius < 1.0) radius = 80.0;
-
-            // Move each shape-to-align (index 2 and beyond)
-            for (int i = 2; i < shapes.Count; i++)
-            {
-                float shapeCenterX = shapes[i].Left + shapes[i].Width / 2f;
-                float shapeCenterY = shapes[i].Top + shapes[i].Height / 2f;
-
-                double adx = shapeCenterX - originX;
-                double ady = shapeCenterY - originY;
-                double currentDist = Math.Sqrt(adx * adx + ady * ady);
-
-                double angle;
-                if (currentDist < 1.0)
+            ExecuteAtomicAlignment(shapes,
+                selected =>
                 {
-                    // Shape is on the origin — place it directly above as a fallback
-                    angle = -Math.PI / 2.0;
-                }
-                else
-                {
-                    angle = Math.Atan2(ady, adx);
-                }
+                    // Centre of the reference object (origin)
+                    float originX = selected[0].Left + selected[0].Width / 2f;
+                    float originY = selected[0].Top + selected[0].Height / 2f;
 
-                // Position the shape so its centre is exactly <radius> from the origin
-                float newCenterX = originX + (float)(radius * Math.Cos(angle));
-                float newCenterY = originY + (float)(radius * Math.Sin(angle));
+                    // Centre of the distance-setter → defines the radius
+                    float setterCenterX = selected[1].Left + selected[1].Width / 2f;
+                    float setterCenterY = selected[1].Top + selected[1].Height / 2f;
 
-                shapes[i].Left = newCenterX - shapes[i].Width / 2f;
-                shapes[i].Top = newCenterY - shapes[i].Height / 2f;
-            }
+                    double dx = setterCenterX - originX;
+                    double dy = setterCenterY - originY;
+                    double radius = Math.Sqrt(dx * dx + dy * dy);
+
+                    // If the distance-setter is sitting on the origin, use a safe default
+                    if (radius < 1.0) radius = 80.0;
+
+                    // Move each shape-to-align (index 2 and beyond)
+                    for (int i = 2; i < selected.Count; i++)
+                    {
+                        float shapeCenterX = selected[i].Left + selected[i].Width / 2f;
+                        float shapeCenterY = selected[i].Top + selected[i].Height / 2f;
+
+                        double adx = shapeCenterX - originX;
+                        double ady = shapeCenterY - originY;
+                        double currentDist = Math.Sqrt(adx * adx + ady * ady);
+
+                        double angle;
+                        if (currentDist < 1.0)
+                        {
+                            // Shape is on the origin — place it directly above as a fallback
+                            angle = -Math.PI / 2.0;
+                        }
+                        else
+                        {
+                            angle = Math.Atan2(ady, adx);
+                        }
+
+                        // Position the shape so its centre is exactly <radius> from the origin
+                        float newCenterX = originX + (float)(radius * Math.Cos(angle));
+                        float newCenterY = originY + (float)(radius * Math.Sin(angle));
+
+                        selected[i].Left = newCenterX - selected[i].Width / 2f;
+                        selected[i].Top = newCenterY - selected[i].Height / 2f;
+                    }
+                },
+                "Align Radially");
         }
 
         private static List<PowerPoint.Shape> GetSelectedShapes(PowerPoint.Application app)
@@ -238,6 +315,12 @@ namespace PowerPointAddIn1
             var result = new List<PowerPoint.Shape>();
             try
             {
+                if (app == null || app.ActiveWindow == null)
+                {
+                    Warn("PowerPoint window is not available.", "No Active Window");
+                    return result;
+                }
+
                 PowerPoint.Selection sel = app.ActiveWindow.Selection;
                 if (sel.Type == PowerPoint.PpSelectionType.ppSelectionShapes)
                 {
@@ -245,9 +328,15 @@ namespace PowerPointAddIn1
                         result.Add(shape);
                 }
             }
-            catch
+            catch (COMException ex)
             {
-                // No valid selection
+                Log("GetSelectedShapes COM error", ex);
+                Warn("Unable to read selected shapes.", "Selection Error");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log("GetSelectedShapes invalid operation", ex);
+                Warn("Selection is not available in the current view.", "Selection Error");
             }
             return result;
         }
@@ -257,12 +346,22 @@ namespace PowerPointAddIn1
             var result = new List<PowerPoint.Shape>();
             try
             {
+                if (app == null || app.ActiveWindow == null)
+                {
+                    Warn("PowerPoint window is not available.", "No Active Window");
+                    return result;
+                }
+
                 PowerPoint.Slide slide = app.ActiveWindow.View.Slide as PowerPoint.Slide;
                 if (slide == null) return result;
 
                 // Only apply on the same slide where shapes were captured
                 if (_capturedSlideIndex > 0 && slide.SlideIndex != _capturedSlideIndex)
+                {
+                    Warn("Captured shapes belong to a different slide. Switch back or clear selection.",
+                        "Captured Selection Mismatch");
                     return result;
+                }
 
                 // Build a lookup from the slide shapes
                 var lookup = new Dictionary<string, PowerPoint.Shape>();
@@ -273,12 +372,30 @@ namespace PowerPointAddIn1
                 foreach (string name in _capturedShapeNames)
                 {
                     if (lookup.TryGetValue(name, out PowerPoint.Shape found))
+                    {
                         result.Add(found);
+                    }
+                    else
+                    {
+                        Log("ResolveCapturedShapes missing shape", null, name);
+                    }
+                }
+
+                if (result.Count == 0 && _capturedShapeNames.Count > 0)
+                {
+                    Warn("Captured shapes could not be resolved. They may have been deleted or renamed.",
+                        "Captured Selection Missing");
                 }
             }
-            catch
+            catch (COMException ex)
             {
-                // Slide or shapes no longer valid
+                Log("ResolveCapturedShapes COM error", ex);
+                Warn("Unable to resolve captured shapes.", "Selection Error");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log("ResolveCapturedShapes invalid operation", ex);
+                Warn("Slide context is not valid in the current view.", "Selection Error");
             }
             return result;
         }
@@ -286,6 +403,73 @@ namespace PowerPointAddIn1
         public static IReadOnlyList<string> GetCapturedNames()
         {
             return _capturedShapeNames;
+        }
+
+        private static void ExecuteAtomicAlignment(
+            List<PowerPoint.Shape> shapes,
+            Action<List<PowerPoint.Shape>> applyChanges,
+            string operationName)
+        {
+            var snapshot = new Dictionary<int, ShapePosition>();
+
+            try
+            {
+                foreach (var shape in shapes)
+                {
+                    snapshot[shape.Id] = new ShapePosition(shape.Left, shape.Top);
+                }
+
+                applyChanges(shapes);
+            }
+            catch (COMException ex)
+            {
+                Log(operationName + " COM error", ex);
+                TryRestorePositions(shapes, snapshot, operationName);
+                Warn(operationName + " could not be completed. Original positions were restored.",
+                    FeatureName);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log(operationName + " invalid operation", ex);
+                TryRestorePositions(shapes, snapshot, operationName);
+                Warn(operationName + " is not available in the current context.", FeatureName);
+            }
+        }
+
+        private static void TryRestorePositions(
+            List<PowerPoint.Shape> shapes,
+            Dictionary<int, ShapePosition> snapshot,
+            string operationName)
+        {
+            foreach (var shape in shapes)
+            {
+                try
+                {
+                    if (snapshot.TryGetValue(shape.Id, out var original))
+                    {
+                        shape.Left = original.Left;
+                        shape.Top = original.Top;
+                    }
+                }
+                catch (COMException ex)
+                {
+                    Log(operationName + " rollback COM error", ex, shape.Name);
+                    // Best-effort rollback only. If a shape is deleted/invalid during rollback,
+                    // we continue restoring remaining shapes to minimize inconsistent state.
+                }
+            }
+        }
+
+        private static void Warn(string message, string title)
+        {
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private static void Log(string message, Exception ex, string context = null)
+        {
+            string extra = string.IsNullOrEmpty(context) ? string.Empty : (" | Context: " + context);
+            string error = ex == null ? string.Empty : (" | " + ex.GetType().Name + ": " + ex.Message);
+            System.Diagnostics.Debug.WriteLine("[" + FeatureName + "] " + message + extra + error);
         }
     }
 }
