@@ -965,6 +965,83 @@ namespace PowerPointAddIn1
             }
         }
 
+        private bool TrySetSelectedShapesTransparent(bool showResultMessage)
+        {
+            var app = Globals.ThisAddIn.Application;
+            if (app.Presentations.Count == 0)
+            {
+                MessageBox.Show("Please open a presentation first.", "No Presentation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            var win = app.ActiveWindow;
+            if (win == null || win.Selection == null ||
+                (win.Selection.Type != PowerPoint.PpSelectionType.ppSelectionShapes &&
+                 win.Selection.Type != PowerPoint.PpSelectionType.ppSelectionText))
+            {
+                MessageBox.Show("Please select one or more shapes or text fields first.",
+                    "Nothing Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            var sr = win.Selection.ShapeRange;
+            int updated = 0;
+
+            for (int i = 1; i <= sr.Count; i++)
+            {
+                try
+                {
+                    var sh = sr[i];
+                    sh.Fill.Visible = Office.MsoTriState.msoTrue;
+                    sh.Fill.Transparency = 1f;
+                    sh.Line.Visible = Office.MsoTriState.msoTrue;
+                    sh.Line.Transparency = 1f;
+                    updated++;
+                }
+                catch { }
+            }
+
+            if (showResultMessage)
+            {
+                MessageBox.Show(updated > 0
+                        ? $"Made {updated} selected shape(s) transparent."
+                        : "No selected shapes could be updated.",
+                    "Transparent Selected",
+                    MessageBoxButtons.OK,
+                    updated > 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            }
+
+            return updated > 0;
+        }
+
+        private void zoomTransparentBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                TrySetSelectedShapesTransparent(true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Transparent Selected error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void zoomTransparentSelectBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                if (!TrySetSelectedShapesTransparent(false)) return;
+                ZoomFeature.SelectZoom(Globals.ThisAddIn.Application);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Transparent + Select Zoom error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void zoomaddbtn_Click(object sender, RibbonControlEventArgs e)
         {
             try { ZoomFeature.ZoomAdd(Globals.ThisAddIn.Application); }

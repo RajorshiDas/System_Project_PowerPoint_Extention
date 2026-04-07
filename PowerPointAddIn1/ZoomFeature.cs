@@ -74,8 +74,7 @@ namespace PowerPointAddIn1
 
             MessageBox.Show(
                 $"{ZoomShapeNames.Count} zoom area(s) stored from Slide {SourceSlideIndex}.\n\n" +
-                "• 'Zoom Add'  – preview one zoom slide per area.\n" +
-                "• 'Create'    – build the full morph sequence.",
+                "Click 'Add + Create Zoom' to build the full morph sequence.",
                 "Zoom Areas Selected",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
