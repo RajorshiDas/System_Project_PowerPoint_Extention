@@ -85,7 +85,6 @@ namespace PowerPointAddIn1
             this.selectEffecctdtn = this.Factory.CreateRibbonButton();
             this.crtHypBtn = this.Factory.CreateRibbonButton();
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
-            this.selecthypbtn = this.Factory.CreateRibbonButton();
             this.btnToggleQR = this.Factory.CreateRibbonToggleButton();
             this.positionsLabBtn = this.Factory.CreateRibbonButton();
             this.resizeBtn = this.Factory.CreateRibbonButton();
@@ -234,7 +233,6 @@ namespace PowerPointAddIn1
             this.hyperlinkgroup.Items.Add(this.SlideNobox);
             this.hyperlinkgroup.Items.Add(this.crtHypBtn);
             this.hyperlinkgroup.Items.Add(this.rmvHypbtn);
-            this.hyperlinkgroup.Items.Add(this.selecthypbtn);
             this.hyperlinkgroup.Label = "Hyper Link";
             this.hyperlinkgroup.Name = "hyperlinkgroup";
             // 
@@ -477,14 +475,6 @@ namespace PowerPointAddIn1
             this.rmvHypbtn.ShowImage = true;
             this.rmvHypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.rmvHypbtn_Click);
             // 
-            // selecthypbtn
-            // 
-            this.selecthypbtn.Image = ((System.Drawing.Image)(resources.GetObject("selecthypbtn.Image")));
-            this.selecthypbtn.Label = "Select Text or Area";
-            this.selecthypbtn.Name = "selecthypbtn";
-            this.selecthypbtn.ShowImage = true;
-            this.selecthypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selecthypbtn_Click);
-            // 
             // btnToggleQR
             // 
             this.btnToggleQR.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -591,7 +581,6 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonEditBox SlideNobox;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton crtHypBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton rmvHypbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton selecthypbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createspotlightbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton spotlightSettingsBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton magniaddbtn;
