@@ -1216,30 +1216,31 @@ namespace PowerPointAddIn1
                     return;
                 }
 
-                // Use stored shapes; fall back to current selection if nothing stored
-                List<string> shapeNames = new List<string>(_hypShapeNames);
-                int srcSlideIdx = _hypSourceSlideIndex;
+                // One-button workflow: always use current selection first.
+                var win = app.ActiveWindow;
+                List<string> shapeNames = new List<string>();
+                int srcSlideIdx = -1;
 
-                if (shapeNames.Count == 0)
+                if (win.Selection != null &&
+                    (win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionShapes ||
+                     win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionText))
                 {
-                    var win = app.ActiveWindow;
-                    if (win.Selection != null &&
-                        (win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionShapes ||
-                         win.Selection.Type == PowerPoint.PpSelectionType.ppSelectionText))
-                    {
-                        srcSlideIdx = (win.View.Slide as PowerPoint.Slide).SlideIndex;
-                        var sr = win.Selection.ShapeRange;
-                        for (int i = 1; i <= sr.Count; i++)
-                            shapeNames.Add(sr[i].Name);
-                    }
-                    else
-                    {
-                        MessageBox.Show(
-                            "No object stored or selected.\n\n" +
-                            "Select an object then click 'Select Text or Area' first.",
-                            "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                    srcSlideIdx = (win.View.Slide as PowerPoint.Slide).SlideIndex;
+                    var sr = win.Selection.ShapeRange;
+                    for (int i = 1; i <= sr.Count; i++)
+                        shapeNames.Add(sr[i].Name);
+                }
+                else if (_hypShapeNames.Count > 0)
+                {
+                    shapeNames = new List<string>(_hypShapeNames);
+                    srcSlideIdx = _hypSourceSlideIndex;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Please select a text/shape area, then click 'Create Hyperlink'.",
+                        "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
 
                 if (srcSlideIdx < 1 || srcSlideIdx > pres.Slides.Count)
