@@ -935,7 +935,11 @@ namespace PowerPointAddIn1
 
         private void selectzoombtn_Click(object sender, RibbonControlEventArgs e)
         {
-            try { ZoomFeature.SelectZoom(Globals.ThisAddIn.Application); }
+            try
+            {
+                if (ZoomFeature.SelectZoom(Globals.ThisAddIn.Application))
+                    ZoomFeature.Create(Globals.ThisAddIn.Application);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Select Zoom error: " + ex.Message, "Error",
@@ -1011,7 +1015,8 @@ namespace PowerPointAddIn1
             try
             {
                 if (!TrySetSelectedShapesTransparent(false)) return;
-                ZoomFeature.SelectZoom(Globals.ThisAddIn.Application);
+                if (ZoomFeature.SelectZoom(Globals.ThisAddIn.Application))
+                    ZoomFeature.Create(Globals.ThisAddIn.Application);
             }
             catch (Exception ex)
             {
