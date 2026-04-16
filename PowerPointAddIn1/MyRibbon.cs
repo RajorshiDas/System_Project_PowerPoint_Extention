@@ -342,19 +342,7 @@ namespace PowerPointAddIn1
                     slidesProcessed++;
                 }
 
-                string message = $"Navigation bar added to {slidesProcessed} slide(s)!";
-                if (totalSubsections > 0)
-                {
-                    message += $"\n{totalSubsections} slide(s) have subsections with colored backgrounds.";
-                }
-                else
-                {
-                    message += "\n\nNote: No subsections found. Create subsections to see colored grouping.";
-                }
-
-                MessageBox.Show(message, "Success",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                // Success popups intentionally suppressed for navigation bar actions.
             }
             catch (Exception ex)
             {
@@ -813,10 +801,7 @@ namespace PowerPointAddIn1
                     slidesProcessed++;
                 }
 
-                MessageBox.Show($"Navigation bar removed from {slidesProcessed} slide(s)!",
-                    "Success",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                // Success popups intentionally suppressed for navigation bar actions.
             }
             catch (Exception ex)
             {
@@ -839,8 +824,6 @@ namespace PowerPointAddIn1
                 if (settingsDialog.ShowDialog() == DialogResult.OK)
                 {
                     navBarSettings = settingsDialog.Settings;
-                    MessageBox.Show("Colors updated! Click 'Refresh Nav Bar' to apply changes.",
-                        "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
@@ -907,12 +890,7 @@ namespace PowerPointAddIn1
                     }
                 }
 
-                if (linksApplied > 0)
-                    MessageBox.Show(
-                        $"{linksApplied} hyperlink(s) added across {slidesVisited} slide(s).\n\n" +
-                        "\u26a0 Links only fire during Slide Show (F5) \u2014 not in Normal Edit view.",
-                        "Links Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                else
+                if (linksApplied <= 0)
                     MessageBox.Show(
                         "No navigation bar circles found.\n\n" +
                         "Please generate (or refresh) the navigation bar first, then click 'Add Links'.",
@@ -1154,16 +1132,7 @@ namespace PowerPointAddIn1
                     if (slideChanged) slidesFixed++;
                 }
 
-                if (shapesFixed > 0)
-                    MessageBox.Show(
-                        $"Adjusted {shapesFixed} shape(s) across {slidesFixed} slide(s) to fit below the navigation bar.",
-                        "Adjust Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                else
-                    MessageBox.Show(
-                        "No new shapes found to adjust.\n\n" +
-                        "All content is already positioned below the navigation bar,\n" +
-                        "or no navigation bar exists yet.",
-                        "Nothing to Adjust", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Success/info popups intentionally suppressed for navigation bar actions.
             }
             catch (Exception ex)
             {
