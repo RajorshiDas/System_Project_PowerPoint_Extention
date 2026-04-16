@@ -36,13 +36,6 @@ namespace PowerPointAddIn1
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MyRibbon));
             this.tab1 = this.Factory.CreateRibbonTab();
-            this.group1 = this.Factory.CreateRibbonGroup();
-            this.lblTotal = this.Factory.CreateRibbonLabel();
-            this.lblSection = this.Factory.CreateRibbonLabel();
-            this.lblSlide = this.Factory.CreateRibbonLabel();
-            this.lblTotalValue = this.Factory.CreateRibbonLabel();
-            this.lblSectionValue = this.Factory.CreateRibbonLabel();
-            this.lblSlideValue = this.Factory.CreateRibbonLabel();
             this.group2 = this.Factory.CreateRibbonGroup();
             this.SubSectionStart = this.Factory.CreateRibbonEditBox();
             this.btnCreateSubsection = this.Factory.CreateRibbonButton();
@@ -90,8 +83,14 @@ namespace PowerPointAddIn1
             this.createzoombtn = this.Factory.CreateRibbonButton();
             this.zoomaddbtn = this.Factory.CreateRibbonButton();
             this.zoomTransparentBtn = this.Factory.CreateRibbonButton();
+            this.lblSlideValue = this.Factory.CreateRibbonLabel();
+            this.lblSectionValue = this.Factory.CreateRibbonLabel();
+            this.lblTotalValue = this.Factory.CreateRibbonLabel();
+            this.lblSlide = this.Factory.CreateRibbonLabel();
+            this.lblSection = this.Factory.CreateRibbonLabel();
+            this.lblTotal = this.Factory.CreateRibbonLabel();
+            this.group1 = this.Factory.CreateRibbonGroup();
             this.tab1.SuspendLayout();
-            this.group1.SuspendLayout();
             this.group2.SuspendLayout();
             this.group4.SuspendLayout();
             this.NavbarGruop.SuspendLayout();
@@ -101,12 +100,12 @@ namespace PowerPointAddIn1
             this.group3.SuspendLayout();
             this.positionsLabGroup.SuspendLayout();
             this.Resize_group.SuspendLayout();
+            this.group1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.Groups.Add(this.group1);
             this.tab1.Groups.Add(this.group2);
             this.tab1.Groups.Add(this.group4);
             this.tab1.Groups.Add(this.NavbarGruop);
@@ -118,47 +117,6 @@ namespace PowerPointAddIn1
             this.tab1.Groups.Add(this.Resize_group);
             this.tab1.Label = "My Tools";
             this.tab1.Name = "tab1";
-            // 
-            // group1
-            // 
-            this.group1.Items.Add(this.lblTotal);
-            this.group1.Items.Add(this.lblSection);
-            this.group1.Items.Add(this.lblSlide);
-            this.group1.Items.Add(this.lblTotalValue);
-            this.group1.Items.Add(this.lblSectionValue);
-            this.group1.Items.Add(this.lblSlideValue);
-            this.group1.Label = "Information";
-            this.group1.Name = "group1";
-            // 
-            // lblTotal
-            // 
-            this.lblTotal.Label = "Total Sections:";
-            this.lblTotal.Name = "lblTotal";
-            // 
-            // lblSection
-            // 
-            this.lblSection.Label = "Current Section:";
-            this.lblSection.Name = "lblSection";
-            // 
-            // lblSlide
-            // 
-            this.lblSlide.Label = "Slides in Section:";
-            this.lblSlide.Name = "lblSlide";
-            // 
-            // lblTotalValue
-            // 
-            this.lblTotalValue.Label = "Value";
-            this.lblTotalValue.Name = "lblTotalValue";
-            // 
-            // lblSectionValue
-            // 
-            this.lblSectionValue.Label = "Value";
-            this.lblSectionValue.Name = "lblSectionValue";
-            // 
-            // lblSlideValue
-            // 
-            this.lblSlideValue.Label = "Value";
-            this.lblSlideValue.Name = "lblSlideValue";
             // 
             // group2
             // 
@@ -516,6 +474,47 @@ namespace PowerPointAddIn1
             this.zoomTransparentBtn.ShowImage = true;
             this.zoomTransparentBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.zoomTransparentBtn_Click);
             // 
+            // lblSlideValue
+            // 
+            this.lblSlideValue.Label = "Value";
+            this.lblSlideValue.Name = "lblSlideValue";
+            // 
+            // lblSectionValue
+            // 
+            this.lblSectionValue.Label = "Value";
+            this.lblSectionValue.Name = "lblSectionValue";
+            // 
+            // lblTotalValue
+            // 
+            this.lblTotalValue.Label = "Value";
+            this.lblTotalValue.Name = "lblTotalValue";
+            // 
+            // lblSlide
+            // 
+            this.lblSlide.Label = "Slides in Section:";
+            this.lblSlide.Name = "lblSlide";
+            // 
+            // lblSection
+            // 
+            this.lblSection.Label = "Current Section:";
+            this.lblSection.Name = "lblSection";
+            // 
+            // lblTotal
+            // 
+            this.lblTotal.Label = "Total Sections:";
+            this.lblTotal.Name = "lblTotal";
+            // 
+            // group1
+            // 
+            this.group1.Items.Add(this.lblTotal);
+            this.group1.Items.Add(this.lblSection);
+            this.group1.Items.Add(this.lblSlide);
+            this.group1.Items.Add(this.lblTotalValue);
+            this.group1.Items.Add(this.lblSectionValue);
+            this.group1.Items.Add(this.lblSlideValue);
+            this.group1.Label = "Information";
+            this.group1.Name = "group1";
+            // 
             // MyRibbon
             // 
             this.Name = "MyRibbon";
@@ -524,8 +523,6 @@ namespace PowerPointAddIn1
             this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.MyRibbon_Load);
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
-            this.group1.ResumeLayout(false);
-            this.group1.PerformLayout();
             this.group2.ResumeLayout(false);
             this.group2.PerformLayout();
             this.group4.ResumeLayout(false);
@@ -544,6 +541,8 @@ namespace PowerPointAddIn1
             this.positionsLabGroup.PerformLayout();
             this.Resize_group.ResumeLayout(false);
             this.Resize_group.PerformLayout();
+            this.group1.ResumeLayout(false);
+            this.group1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -551,13 +550,6 @@ namespace PowerPointAddIn1
         #endregion
 
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblTotal;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSection;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSlide;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblTotalValue;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSectionValue;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSlideValue;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSubsectionName;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnCreateSubsection;
@@ -605,5 +597,12 @@ namespace PowerPointAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton positionsLabBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton resizeBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup Resize_group;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblTotal;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSection;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSlide;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblTotalValue;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSectionValue;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel lblSlideValue;
     }
 }
