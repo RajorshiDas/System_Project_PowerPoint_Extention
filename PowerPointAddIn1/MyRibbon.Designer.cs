@@ -63,7 +63,6 @@ namespace PowerPointAddIn1
             this.ZoomGroup = this.Factory.CreateRibbonGroup();
             this.zoomTransparentSelectBtn = this.Factory.CreateRibbonButton();
             this.selectzoombtn = this.Factory.CreateRibbonButton();
-            this.createzoombtn = this.Factory.CreateRibbonButton();
             this.effectGruop = this.Factory.CreateRibbonGroup();
             this.effectsplitbtn = this.Factory.CreateRibbonSplitButton();
             this.spotlightMenu = this.Factory.CreateRibbonMenu();
@@ -88,6 +87,7 @@ namespace PowerPointAddIn1
             this.positionsLabBtn = this.Factory.CreateRibbonButton();
             this.Resize_group = this.Factory.CreateRibbonGroup();
             this.resizeBtn = this.Factory.CreateRibbonButton();
+            this.createzoombtn = this.Factory.CreateRibbonButton();
             this.zoomaddbtn = this.Factory.CreateRibbonButton();
             this.zoomTransparentBtn = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
@@ -289,7 +289,6 @@ namespace PowerPointAddIn1
             // 
             this.ZoomGroup.Items.Add(this.zoomTransparentSelectBtn);
             this.ZoomGroup.Items.Add(this.selectzoombtn);
-            this.ZoomGroup.Items.Add(this.createzoombtn);
             this.ZoomGroup.Label = "Zoom Features";
             this.ZoomGroup.Name = "ZoomGroup";
             // 
@@ -307,14 +306,6 @@ namespace PowerPointAddIn1
             this.selectzoombtn.Name = "selectzoombtn";
             this.selectzoombtn.ShowImage = true;
             this.selectzoombtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectzoombtn_Click);
-            // 
-            // createzoombtn
-            // 
-            this.createzoombtn.Image = ((System.Drawing.Image)(resources.GetObject("createzoombtn.Image")));
-            this.createzoombtn.Label = "Add Zoom";
-            this.createzoombtn.Name = "createzoombtn";
-            this.createzoombtn.ShowImage = true;
-            this.createzoombtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.createzoombtn_Click);
             // 
             // effectGruop
             // 
@@ -501,6 +492,14 @@ namespace PowerPointAddIn1
             this.resizeBtn.Name = "resizeBtn";
             this.resizeBtn.ShowImage = true;
             this.resizeBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.resizeBtn_Click);
+            // 
+            // createzoombtn
+            // 
+            this.createzoombtn.Image = ((System.Drawing.Image)(resources.GetObject("createzoombtn.Image")));
+            this.createzoombtn.Label = "Add Zoom";
+            this.createzoombtn.Name = "createzoombtn";
+            this.createzoombtn.ShowImage = true;
+            this.createzoombtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.createzoombtn_Click);
             // 
             // zoomaddbtn
             // 

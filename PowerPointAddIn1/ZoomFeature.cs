@@ -36,12 +36,12 @@ namespace PowerPointAddIn1
         //    (PowerPoint Morph tracks shapes by name across slides), and stores
         //    the shape names together with the source slide index.
         // ─────────────────────────────────────────────────────────────────────
-        internal static void SelectZoom(PowerPoint.Application app)
+        internal static bool SelectZoom(PowerPoint.Application app)
         {
             if (app?.ActivePresentation == null)
             {
                 Warn("Please open a presentation first.", "No Presentation");
-                return;
+                return false;
             }
 
             var win = app.ActiveWindow;
@@ -52,11 +52,11 @@ namespace PowerPointAddIn1
                     "Please select one or more shapes (or an image) on the slide, " +
                     "then click 'Select Zoom Areas'.",
                     "No Shapes Selected");
-                return;
+                return false;
             }
 
             var sr = win.Selection.ShapeRange;
-            if (sr.Count < 1) { Warn("No shapes selected.", "No Shapes"); return; }
+            if (sr.Count < 1) { Warn("No shapes selected.", "No Shapes"); return false; }
 
             ZoomShapeNames.Clear();
             SourceSlideIndex = win.View.Slide.SlideIndex;
@@ -79,6 +79,8 @@ namespace PowerPointAddIn1
                 "Zoom Areas Selected",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
+
+            return true;
         }
 
         // ─────────────────────────────────────────────────────────────────────
