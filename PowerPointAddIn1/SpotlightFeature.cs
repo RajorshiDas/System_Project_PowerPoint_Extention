@@ -34,12 +34,12 @@ namespace PowerPointAddIn1
         //    Reads the current selection and registers shapes as spotlight areas.
         //    Shapes are prefixed SPOT_ so they can be identified later.
         // ─────────────────────────────────────────────────────────────────────
-        internal static void SelectAreas(PowerPoint.Application app)
+        internal static bool SelectAreas(PowerPoint.Application app)
         {
             if (app?.ActivePresentation == null)
             {
                 Warn("Please open a presentation first.", "No Presentation");
-                return;
+                return false;
             }
 
             var win = app.ActiveWindow;
@@ -49,11 +49,11 @@ namespace PowerPointAddIn1
                 Warn("Select one or more shapes on the slide that define the spotlight areas,\n" +
                      "then click 'Select Effect Areas'.",
                      "No Shapes Selected");
-                return;
+                return false;
             }
 
             var sr = win.Selection.ShapeRange;
-            if (sr.Count < 1) { Warn("No shapes selected.", "No Shapes"); return; }
+            if (sr.Count < 1) { Warn("No shapes selected.", "No Shapes"); return false; }
 
             SpotlightShapeNames.Clear();
             SourceSlideIndex = win.View.Slide.SlideIndex;
@@ -73,6 +73,8 @@ namespace PowerPointAddIn1
                 "Areas Selected",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
+
+            return true;
         }
 
         // ─────────────────────────────────────────────────────────────────────

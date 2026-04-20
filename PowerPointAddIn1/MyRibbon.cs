@@ -21,9 +21,18 @@ namespace PowerPointAddIn1
         private readonly ResizeLabService _resizeLabService = new ResizeLabService();
         private ReferenceMode _resizeReferenceMode = ReferenceMode.FirstSelected;
 
+        private enum BlurRunMode
+        {
+            Remainder,
+            AllExcept
+        }
+
+        private BlurRunMode _blurRunMode = BlurRunMode.Remainder;
+
         private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             UpdateSectionInfo();
+            SyncBlurModeSelectionUi();
         }
 
         public void RefreshInfo()
@@ -905,7 +914,7 @@ namespace PowerPointAddIn1
 
         private void selectEffecctdtn_Click(object sender, RibbonControlEventArgs e)
         {
-            try { SpotlightFeature.SelectAreas(Globals.ThisAddIn.Application); }
+            try { _ = SpotlightFeature.SelectAreas(Globals.ThisAddIn.Application); }
             catch (Exception ex)
             {
                 MessageBox.Show("Select Effect Areas error: " + ex.Message, "Error",
@@ -925,12 +934,22 @@ namespace PowerPointAddIn1
 
         private void createspotlightbtn_Click(object sender, RibbonControlEventArgs e)
         {
-            try { SpotlightFeature.CreateSpotlight(Globals.ThisAddIn.Application); }
+            try
+            {
+                var app = Globals.ThisAddIn.Application;
+                if (SpotlightFeature.SelectAreas(app))
+                    SpotlightFeature.CreateSpotlight(app);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Create Spotlight error: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void spotlightSplitBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            createspotlightbtn_Click(sender, e);
         }
 
         private void selectzoombtn_Click(object sender, RibbonControlEventArgs e)
@@ -1053,6 +1072,40 @@ namespace PowerPointAddIn1
                 MessageBox.Show("Magnify error: " + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void blurSplitBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (_blurRunMode == BlurRunMode.Remainder)
+                blur_remainbtn_Click(sender, e);
+            else
+                blur_allexceptbtn_Click(sender, e);
+        }
+
+        private void blurModeRemainderToggle_Click(object sender, RibbonControlEventArgs e)
+        {
+            _blurRunMode = BlurRunMode.Remainder;
+            SyncBlurModeSelectionUi();
+        }
+
+        private void blurModeAllExceptToggle_Click(object sender, RibbonControlEventArgs e)
+        {
+            _blurRunMode = BlurRunMode.AllExcept;
+            SyncBlurModeSelectionUi();
+        }
+
+        private void SyncBlurModeSelectionUi()
+        {
+            if (blurModeRemainderToggle != null)
+                blurModeRemainderToggle.Checked = _blurRunMode == BlurRunMode.Remainder;
+
+            if (blurModeAllExceptToggle != null)
+                blurModeAllExceptToggle.Checked = _blurRunMode == BlurRunMode.AllExcept;
+        }
+
+        private void magnifySplitBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            magniaddbtn_Click(sender, e);
         }
 
         private void magsetingsbtn_Click(object sender, RibbonControlEventArgs e)
