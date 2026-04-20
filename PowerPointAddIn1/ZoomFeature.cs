@@ -116,13 +116,6 @@ namespace PowerPointAddIn1
             foreach (var name in selectedNames)
                 ZoomShapeNames.Add(name);
 
-            MessageBox.Show(
-                $"{ZoomShapeNames.Count} zoom area(s) selected for Slide {SourceSlideIndex}.\n\n" +
-                "Click 'Add + Create Zoom' to build the full morph sequence.",
-                "Zoom Areas Selected",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-
             return true;
         }
 
@@ -294,12 +287,6 @@ namespace PowerPointAddIn1
                 ApplyMorph(preview);
             }
 
-            MessageBox.Show(
-                $"{ZoomShapeNames.Count} zoom preview slide(s) inserted after Slide {SourceSlideIndex}.\n\n" +
-                "Click 'Create' to build the full Original → Zoom → Original sequence.",
-                "Zoom Add",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -370,15 +357,6 @@ namespace PowerPointAddIn1
             RemoveZoomAreaMarkers(src);
             ZoomShapeNames.Clear();
 
-            int inserted = areaCount * 2;
-            MessageBox.Show(
-                $"Zoom sequence created!\n\n" +
-                $"{inserted} slides inserted after Slide {SourceSlideIndex}.\n" +
-                $"Pattern: Original \u2192 Zoom \u2192 Original  (\u00d7{areaCount})\n\n" +
-                "Morph transition applied to all slides.",
-                "Success",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
         }
 
         // ─────────────────────────────────────────────────────────────────────

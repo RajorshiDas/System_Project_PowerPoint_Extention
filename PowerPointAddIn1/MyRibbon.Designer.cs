@@ -38,37 +38,25 @@ namespace PowerPointAddIn1
             this.tab1 = this.Factory.CreateRibbonTab();
             this.group2 = this.Factory.CreateRibbonGroup();
             this.SubSectionStart = this.Factory.CreateRibbonEditBox();
+            this.btnCreateSubsection = this.Factory.CreateRibbonButton();
             this.lblSubsectionName = this.Factory.CreateRibbonLabel();
             this.SubSectionEnd = this.Factory.CreateRibbonEditBox();
             this.valueSubsectionName = this.Factory.CreateRibbonLabel();
             this.group4 = this.Factory.CreateRibbonGroup();
-            this.NavbarGruop = this.Factory.CreateRibbonGroup();
-            this.ZoomGroup = this.Factory.CreateRibbonGroup();
-            this.effectGruop = this.Factory.CreateRibbonGroup();
-            this.hyperlinkgroup = this.Factory.CreateRibbonGroup();
-            this.SlideNobox = this.Factory.CreateRibbonEditBox();
-            this.group3 = this.Factory.CreateRibbonGroup();
-            this.positionsLabGroup = this.Factory.CreateRibbonGroup();
-            this.Resize_group = this.Factory.CreateRibbonGroup();
-            this.lblSlideValue = this.Factory.CreateRibbonLabel();
-            this.lblSectionValue = this.Factory.CreateRibbonLabel();
-            this.lblTotalValue = this.Factory.CreateRibbonLabel();
-            this.lblSlide = this.Factory.CreateRibbonLabel();
-            this.lblSection = this.Factory.CreateRibbonLabel();
-            this.lblTotal = this.Factory.CreateRibbonLabel();
-            this.group1 = this.Factory.CreateRibbonGroup();
-            this.btnCreateSubsection = this.Factory.CreateRibbonButton();
             this.addAgendaBtn = this.Factory.CreateRibbonButton();
             this.removeAgendaBtn = this.Factory.CreateRibbonButton();
             this.refreshAgendaBtn = this.Factory.CreateRibbonButton();
+            this.NavbarGruop = this.Factory.CreateRibbonGroup();
             this.btnCreateNav = this.Factory.CreateRibbonButton();
             this.btnRefreshNav = this.Factory.CreateRibbonButton();
             this.btnRemoveNav = this.Factory.CreateRibbonButton();
             this.btnNavBarSetting = this.Factory.CreateRibbonButton();
             this.adjustbtn = this.Factory.CreateRibbonButton();
             this.linkbtn = this.Factory.CreateRibbonButton();
+            this.ZoomGroup = this.Factory.CreateRibbonGroup();
             this.zoomTransparentSelectBtn = this.Factory.CreateRibbonButton();
             this.selectzoombtn = this.Factory.CreateRibbonButton();
+            this.effectGruop = this.Factory.CreateRibbonGroup();
             this.spotlightSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.spotlightSettingsBtn = this.Factory.CreateRibbonButton();
             this.blurSplitBtn = this.Factory.CreateRibbonSplitButton();
@@ -77,11 +65,23 @@ namespace PowerPointAddIn1
             this.blursettingbtn = this.Factory.CreateRibbonButton();
             this.magnifySplitBtn = this.Factory.CreateRibbonSplitButton();
             this.magsetingsbtn = this.Factory.CreateRibbonButton();
+            this.hyperlinkgroup = this.Factory.CreateRibbonGroup();
+            this.SlideNobox = this.Factory.CreateRibbonEditBox();
             this.crtHypBtn = this.Factory.CreateRibbonButton();
             this.rmvHypbtn = this.Factory.CreateRibbonButton();
+            this.group3 = this.Factory.CreateRibbonGroup();
             this.btnToggleQR = this.Factory.CreateRibbonToggleButton();
+            this.positionsLabGroup = this.Factory.CreateRibbonGroup();
             this.positionsLabBtn = this.Factory.CreateRibbonButton();
+            this.Resize_group = this.Factory.CreateRibbonGroup();
             this.resizeBtn = this.Factory.CreateRibbonButton();
+            this.lblSlideValue = this.Factory.CreateRibbonLabel();
+            this.lblSectionValue = this.Factory.CreateRibbonLabel();
+            this.lblTotalValue = this.Factory.CreateRibbonLabel();
+            this.lblSlide = this.Factory.CreateRibbonLabel();
+            this.lblSection = this.Factory.CreateRibbonLabel();
+            this.lblTotal = this.Factory.CreateRibbonLabel();
+            this.group1 = this.Factory.CreateRibbonGroup();
             this.blur_remainbtn = this.Factory.CreateRibbonButton();
             this.blur_allexceptbtn = this.Factory.CreateRibbonButton();
             this.createspotlightbtn = this.Factory.CreateRibbonButton();
@@ -140,6 +140,12 @@ namespace PowerPointAddIn1
             this.SubSectionStart.Text = null;
             this.SubSectionStart.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.editBox2_TextChanged);
             // 
+            // btnCreateSubsection
+            // 
+            this.btnCreateSubsection.Label = "Create Subsection";
+            this.btnCreateSubsection.Name = "btnCreateSubsection";
+            this.btnCreateSubsection.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnCreateSubsection_Click);
+            // 
             // lblSubsectionName
             // 
             this.lblSubsectionName.Label = "Current subsection name : ";
@@ -165,112 +171,6 @@ namespace PowerPointAddIn1
             this.group4.Label = "Agenda";
             this.group4.Name = "group4";
             // 
-            // NavbarGruop
-            // 
-            this.NavbarGruop.Items.Add(this.btnCreateNav);
-            this.NavbarGruop.Items.Add(this.btnRefreshNav);
-            this.NavbarGruop.Items.Add(this.btnRemoveNav);
-            this.NavbarGruop.Items.Add(this.btnNavBarSetting);
-            this.NavbarGruop.Items.Add(this.adjustbtn);
-            this.NavbarGruop.Items.Add(this.linkbtn);
-            this.NavbarGruop.Label = "Navigation Bar";
-            this.NavbarGruop.Name = "NavbarGruop";
-            // 
-            // ZoomGroup
-            // 
-            this.ZoomGroup.Items.Add(this.zoomTransparentSelectBtn);
-            this.ZoomGroup.Items.Add(this.selectzoombtn);
-            this.ZoomGroup.Label = "Zoom Features";
-            this.ZoomGroup.Name = "ZoomGroup";
-            // 
-            // effectGruop
-            // 
-            this.effectGruop.Items.Add(this.spotlightSplitBtn);
-            this.effectGruop.Items.Add(this.blurSplitBtn);
-            this.effectGruop.Items.Add(this.magnifySplitBtn);
-            this.effectGruop.Label = "Effects";
-            this.effectGruop.Name = "effectGruop";
-            // 
-            // hyperlinkgroup
-            // 
-            this.hyperlinkgroup.Items.Add(this.SlideNobox);
-            this.hyperlinkgroup.Items.Add(this.crtHypBtn);
-            this.hyperlinkgroup.Items.Add(this.rmvHypbtn);
-            this.hyperlinkgroup.Label = "Hyper Link";
-            this.hyperlinkgroup.Name = "hyperlinkgroup";
-            // 
-            // SlideNobox
-            // 
-            this.SlideNobox.Label = "Slide No :";
-            this.SlideNobox.Name = "SlideNobox";
-            this.SlideNobox.Text = null;
-            this.SlideNobox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SlideNobox_TextChanged);
-            // 
-            // group3
-            // 
-            this.group3.Items.Add(this.btnToggleQR);
-            this.group3.Label = "QR Code";
-            this.group3.Name = "group3";
-            // 
-            // positionsLabGroup
-            // 
-            this.positionsLabGroup.Items.Add(this.positionsLabBtn);
-            this.positionsLabGroup.Label = "Allignment";
-            this.positionsLabGroup.Name = "positionsLabGroup";
-            // 
-            // Resize_group
-            // 
-            this.Resize_group.Items.Add(this.resizeBtn);
-            this.Resize_group.Label = "Resize Lab";
-            this.Resize_group.Name = "Resize_group";
-            // 
-            // lblSlideValue
-            // 
-            this.lblSlideValue.Label = "Value";
-            this.lblSlideValue.Name = "lblSlideValue";
-            // 
-            // lblSectionValue
-            // 
-            this.lblSectionValue.Label = "Value";
-            this.lblSectionValue.Name = "lblSectionValue";
-            // 
-            // lblTotalValue
-            // 
-            this.lblTotalValue.Label = "Value";
-            this.lblTotalValue.Name = "lblTotalValue";
-            // 
-            // lblSlide
-            // 
-            this.lblSlide.Label = "Slides in Section:";
-            this.lblSlide.Name = "lblSlide";
-            // 
-            // lblSection
-            // 
-            this.lblSection.Label = "Current Section:";
-            this.lblSection.Name = "lblSection";
-            // 
-            // lblTotal
-            // 
-            this.lblTotal.Label = "Total Sections:";
-            this.lblTotal.Name = "lblTotal";
-            // 
-            // group1
-            // 
-            this.group1.Items.Add(this.lblTotal);
-            this.group1.Items.Add(this.lblSection);
-            this.group1.Items.Add(this.lblSlide);
-            this.group1.Items.Add(this.lblTotalValue);
-            this.group1.Items.Add(this.lblSectionValue);
-            this.group1.Items.Add(this.lblSlideValue);
-            this.group1.Label = "Information";
-            this.group1.Name = "group1";
-            // 
-            // btnCreateSubsection
-            // 
-            this.btnCreateSubsection.Label = "Create Subsection";
-            this.btnCreateSubsection.Name = "btnCreateSubsection";
-            this.btnCreateSubsection.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnCreateSubsection_Click);
-            // 
             // addAgendaBtn
             // 
             this.addAgendaBtn.Label = "Add Agenda";
@@ -288,6 +188,17 @@ namespace PowerPointAddIn1
             this.refreshAgendaBtn.Label = "Refresh Agenda";
             this.refreshAgendaBtn.Name = "refreshAgendaBtn";
             this.refreshAgendaBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.refreshAgendaBtn_Click);
+            // 
+            // NavbarGruop
+            // 
+            this.NavbarGruop.Items.Add(this.btnCreateNav);
+            this.NavbarGruop.Items.Add(this.btnRefreshNav);
+            this.NavbarGruop.Items.Add(this.btnRemoveNav);
+            this.NavbarGruop.Items.Add(this.btnNavBarSetting);
+            this.NavbarGruop.Items.Add(this.adjustbtn);
+            this.NavbarGruop.Items.Add(this.linkbtn);
+            this.NavbarGruop.Label = "Navigation Bar";
+            this.NavbarGruop.Name = "NavbarGruop";
             // 
             // btnCreateNav
             // 
@@ -337,9 +248,16 @@ namespace PowerPointAddIn1
             this.linkbtn.ShowImage = true;
             this.linkbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.linkbtn_Click);
             // 
+            // ZoomGroup
+            // 
+            this.ZoomGroup.Items.Add(this.zoomTransparentSelectBtn);
+            this.ZoomGroup.Items.Add(this.selectzoombtn);
+            this.ZoomGroup.Label = "Zoom Features";
+            this.ZoomGroup.Name = "ZoomGroup";
+            // 
             // zoomTransparentSelectBtn
             // 
-            this.zoomTransparentSelectBtn.Label = "Select Area";
+            this.zoomTransparentSelectBtn.Label = "Zoom Area";
             this.zoomTransparentSelectBtn.Name = "zoomTransparentSelectBtn";
             this.zoomTransparentSelectBtn.ShowImage = true;
             this.zoomTransparentSelectBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.zoomTransparentSelectBtn_Click);
@@ -351,6 +269,14 @@ namespace PowerPointAddIn1
             this.selectzoombtn.Name = "selectzoombtn";
             this.selectzoombtn.ShowImage = true;
             this.selectzoombtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectzoombtn_Click);
+            // 
+            // effectGruop
+            // 
+            this.effectGruop.Items.Add(this.spotlightSplitBtn);
+            this.effectGruop.Items.Add(this.blurSplitBtn);
+            this.effectGruop.Items.Add(this.magnifySplitBtn);
+            this.effectGruop.Label = "Effects";
+            this.effectGruop.Name = "effectGruop";
             // 
             // spotlightSplitBtn
             // 
@@ -413,6 +339,21 @@ namespace PowerPointAddIn1
             this.magsetingsbtn.ShowImage = true;
             this.magsetingsbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.magsetingsbtn_Click);
             // 
+            // hyperlinkgroup
+            // 
+            this.hyperlinkgroup.Items.Add(this.SlideNobox);
+            this.hyperlinkgroup.Items.Add(this.crtHypBtn);
+            this.hyperlinkgroup.Items.Add(this.rmvHypbtn);
+            this.hyperlinkgroup.Label = "Hyper Link";
+            this.hyperlinkgroup.Name = "hyperlinkgroup";
+            // 
+            // SlideNobox
+            // 
+            this.SlideNobox.Label = "Slide No :";
+            this.SlideNobox.Name = "SlideNobox";
+            this.SlideNobox.Text = null;
+            this.SlideNobox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SlideNobox_TextChanged);
+            // 
             // crtHypBtn
             // 
             this.crtHypBtn.Image = ((System.Drawing.Image)(resources.GetObject("crtHypBtn.Image")));
@@ -429,6 +370,12 @@ namespace PowerPointAddIn1
             this.rmvHypbtn.ShowImage = true;
             this.rmvHypbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.rmvHypbtn_Click);
             // 
+            // group3
+            // 
+            this.group3.Items.Add(this.btnToggleQR);
+            this.group3.Label = "QR Code";
+            this.group3.Name = "group3";
+            // 
             // btnToggleQR
             // 
             this.btnToggleQR.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -437,6 +384,12 @@ namespace PowerPointAddIn1
             this.btnToggleQR.Name = "btnToggleQR";
             this.btnToggleQR.ShowImage = true;
             this.btnToggleQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnToggleQR_Click);
+            // 
+            // positionsLabGroup
+            // 
+            this.positionsLabGroup.Items.Add(this.positionsLabBtn);
+            this.positionsLabGroup.Label = "Allignment";
+            this.positionsLabGroup.Name = "positionsLabGroup";
             // 
             // positionsLabBtn
             // 
@@ -447,6 +400,12 @@ namespace PowerPointAddIn1
             this.positionsLabBtn.ShowImage = true;
             this.positionsLabBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.positionsLabBtn_Click);
             // 
+            // Resize_group
+            // 
+            this.Resize_group.Items.Add(this.resizeBtn);
+            this.Resize_group.Label = "Resize Lab";
+            this.Resize_group.Name = "Resize_group";
+            // 
             // resizeBtn
             // 
             this.resizeBtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -455,6 +414,47 @@ namespace PowerPointAddIn1
             this.resizeBtn.Name = "resizeBtn";
             this.resizeBtn.ShowImage = true;
             this.resizeBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.resizeBtn_Click);
+            // 
+            // lblSlideValue
+            // 
+            this.lblSlideValue.Label = "Value";
+            this.lblSlideValue.Name = "lblSlideValue";
+            // 
+            // lblSectionValue
+            // 
+            this.lblSectionValue.Label = "Value";
+            this.lblSectionValue.Name = "lblSectionValue";
+            // 
+            // lblTotalValue
+            // 
+            this.lblTotalValue.Label = "Value";
+            this.lblTotalValue.Name = "lblTotalValue";
+            // 
+            // lblSlide
+            // 
+            this.lblSlide.Label = "Slides in Section:";
+            this.lblSlide.Name = "lblSlide";
+            // 
+            // lblSection
+            // 
+            this.lblSection.Label = "Current Section:";
+            this.lblSection.Name = "lblSection";
+            // 
+            // lblTotal
+            // 
+            this.lblTotal.Label = "Total Sections:";
+            this.lblTotal.Name = "lblTotal";
+            // 
+            // group1
+            // 
+            this.group1.Items.Add(this.lblTotal);
+            this.group1.Items.Add(this.lblSection);
+            this.group1.Items.Add(this.lblSlide);
+            this.group1.Items.Add(this.lblTotalValue);
+            this.group1.Items.Add(this.lblSectionValue);
+            this.group1.Items.Add(this.lblSlideValue);
+            this.group1.Label = "Information";
+            this.group1.Name = "group1";
             // 
             // blur_remainbtn
             // 
