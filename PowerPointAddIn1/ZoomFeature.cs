@@ -67,6 +67,10 @@ namespace PowerPointAddIn1
                 return false;
             }
 
+            // If user uses Home-tab rectangles as zoom area boxes, promote them
+            // to zoom markers so they behave like Select Object boxes.
+            TryPromoteHomeRectanglesToMarkers(srcSlide, sr);
+
             var selectedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int i = 1; i <= sr.Count; i++)
@@ -174,6 +178,69 @@ namespace PowerPointAddIn1
             }
         }
 
+        private static void TryPromoteHomeRectanglesToMarkers(PowerPoint.Slide slide, PowerPoint.ShapeRange selection)
+        {
+            bool hasHomeRectangleInSelection = false;
+            for (int i = 1; i <= selection.Count; i++)
+            {
+                try
+                {
+                    if (IsHomeTabRectangleCandidate(selection[i]))
+                    {
+                        hasHomeRectangleInSelection = true;
+                        break;
+                    }
+                }
+                catch { }
+            }
+
+            if (!hasHomeRectangleInSelection) return;
+
+            for (int i = 1; i <= slide.Shapes.Count; i++)
+            {
+                try
+                {
+                    var sh = slide.Shapes[i];
+                    if (!IsHomeTabRectangleCandidate(sh)) continue;
+
+                    if (sh.Tags[ZoomAreaMarkerTag] != "True")
+                        sh.Tags.Add(ZoomAreaMarkerTag, "True");
+
+                    if (!sh.Name.StartsWith("ZOOM_", StringComparison.OrdinalIgnoreCase))
+                        sh.Name = "ZOOM_HOME_" + i + "_" + sh.Name;
+                }
+                catch { }
+            }
+        }
+
+        private static bool IsHomeTabRectangleCandidate(PowerPoint.Shape sh)
+        {
+            try
+            {
+                if (sh == null) return false;
+                if (IsZoomAreaMarkerShape(sh)) return true;
+                if (sh.AutoShapeType != Office.MsoAutoShapeType.msoShapeRectangle) return false;
+
+                string name = sh.Name ?? string.Empty;
+                if (!name.StartsWith("Rectangle", StringComparison.OrdinalIgnoreCase) &&
+                    !name.StartsWith("ZOOM_HOME_", StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                if (sh.HasTextFrame == Office.MsoTriState.msoTrue &&
+                    sh.TextFrame.HasText == Office.MsoTriState.msoTrue)
+                {
+                    string txt = sh.TextFrame.TextRange.Text;
+                    if (!string.IsNullOrWhiteSpace(txt)) return false;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static bool IsZoomAreaMarkerShape(PowerPoint.Shape sh)
         {
             try
@@ -210,9 +277,6 @@ namespace PowerPointAddIn1
             float slideW = pres.PageSetup.SlideWidth;
             float slideH = pres.PageSetup.SlideHeight;
 
-            // Remove only slides previously generated for this source slide.
-            RemoveTaggedSlidesForSource(pres, sourceSlideId);
-
             // Insert in REVERSE so the final order matches the stored list order.
             // Each Duplicate() always inserts at src.SlideIndex + 1; processing
             // last-to-first means earlier areas end up closer to the source.
@@ -226,6 +290,7 @@ namespace PowerPointAddIn1
                 preview.Tags.Add(ZoomTag, "true");
                 preview.Tags.Add(ZoomSourceSlideIdTag, sourceSlideId.ToString(CultureInfo.InvariantCulture));
                 TransformAllShapes(preview, zArea, slideW, slideH);
+                RemoveZoomAreaMarkers(preview);
                 ApplyMorph(preview);
             }
 
@@ -255,7 +320,6 @@ namespace PowerPointAddIn1
 
             var src  = pres.Slides[SourceSlideIndex];
             int sourceSlideId = src.SlideID;
-            RemoveTaggedSlidesForSource(pres, sourceSlideId); // clean only this source slide's generated slides
             float slideW = pres.PageSetup.SlideWidth;
             float slideH = pres.PageSetup.SlideHeight;
 
@@ -284,6 +348,7 @@ namespace PowerPointAddIn1
                 var returnSlide = pres.Slides[src.SlideIndex + 1];
                 returnSlide.Tags.Add(ZoomTag, "true");
                 returnSlide.Tags.Add(ZoomSourceSlideIdTag, sourceSlideId.ToString(CultureInfo.InvariantCulture));
+                RemoveZoomAreaMarkers(returnSlide);
                 ApplyMorph(returnSlide);
 
                 // ── Zoom-in slide ────────────────────────────────────────────
@@ -294,6 +359,7 @@ namespace PowerPointAddIn1
                 zoomIn.Tags.Add(ZoomTag, "true");
                 zoomIn.Tags.Add(ZoomSourceSlideIdTag, sourceSlideId.ToString(CultureInfo.InvariantCulture));
                 TransformAllShapes(zoomIn, zArea, slideW, slideH);
+                RemoveZoomAreaMarkers(zoomIn);
                 ApplyMorph(zoomIn);
             }
 
