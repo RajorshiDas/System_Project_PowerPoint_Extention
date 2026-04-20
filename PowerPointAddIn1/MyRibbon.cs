@@ -956,8 +956,7 @@ namespace PowerPointAddIn1
         {
             try
             {
-                if (ZoomFeature.SelectZoom(Globals.ThisAddIn.Application))
-                    ZoomFeature.Create(Globals.ThisAddIn.Application);
+                ZoomFeature.AddZoomSelectionRectangle(Globals.ThisAddIn.Application);
             }
             catch (Exception ex)
             {
@@ -1033,7 +1032,6 @@ namespace PowerPointAddIn1
         {
             try
             {
-                if (!TrySetSelectedShapesTransparent(false)) return;
                 if (ZoomFeature.SelectZoom(Globals.ThisAddIn.Application))
                     ZoomFeature.Create(Globals.ThisAddIn.Application);
             }

@@ -19,6 +19,7 @@ namespace PowerPointAddIn1
         // cleaned up before a re-run without touching the user's own slides.
         private const string ZoomTag = "ZoomMorphSlide";
         private const string ZoomSourceSlideIdTag = "ZoomSourceSlideId";
+        private const string ZoomAreaMarkerTag = "ZoomAreaMarker";
 
         // ppEffectMorphByObject = 3954, ppEffectMorphByWord = 3955, ppEffectMorphByChar = 3956
         // (Microsoft 365 / PowerPoint 2016+ correct values)
@@ -49,38 +50,145 @@ namespace PowerPointAddIn1
                 win.Selection.Type != PowerPoint.PpSelectionType.ppSelectionShapes)
             {
                 Warn(
-                    "Please select one or more shapes (or an image) on the slide, " +
-                    "then click 'Select Zoom Areas'.",
-                    "No Shapes Selected");
+                    "No zoom areas found.\n\n" +
+                    "Use 'Select Object' to add one or more rectangular zoom areas, " +
+                    "then click 'Select Area'.",
+                    "No Zoom Areas");
                 return false;
             }
 
             var sr = win.Selection.ShapeRange;
             if (sr.Count < 1) { Warn("No shapes selected.", "No Shapes"); return false; }
 
-            ZoomShapeNames.Clear();
-            SourceSlideIndex = win.View.Slide.SlideIndex;
+            var srcSlide = win.View.Slide as PowerPoint.Slide;
+            if (srcSlide == null)
+            {
+                Warn("Could not detect active slide.", "Zoom");
+                return false;
+            }
+
+            var selectedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int i = 1; i <= sr.Count; i++)
             {
                 var sh = sr[i];
 
-                // Ensure the name starts with ZOOM_ so Morph can track the
-                // shape across the original slide and the generated zoom slides.
                 if (!sh.Name.StartsWith("ZOOM_", StringComparison.OrdinalIgnoreCase))
                     sh.Name = "ZOOM_" + i + "_" + sh.Name;
 
-                ZoomShapeNames.Add(sh.Name);
+                selectedNames.Add(sh.Name);
             }
 
+            // If the slide contains generated zoom marker rectangles, always use
+            // all of them. This supports copy/paste workflow where user creates
+            // multiple zoom boxes but may not multi-select all before clicking.
+            var markerNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 1; i <= srcSlide.Shapes.Count; i++)
+            {
+                try
+                {
+                    var sh = srcSlide.Shapes[i];
+                    if (!IsZoomAreaMarkerShape(sh)) continue;
+
+                    if (!sh.Name.StartsWith("ZOOM_", StringComparison.OrdinalIgnoreCase))
+                        sh.Name = "ZOOM_AUTO_" + i + "_" + sh.Name;
+
+                    markerNames.Add(sh.Name);
+                }
+                catch { }
+            }
+
+            if (markerNames.Count > 0)
+            {
+                selectedNames.Clear();
+                foreach (var markerName in markerNames)
+                    selectedNames.Add(markerName);
+            }
+
+            int selectedSlideIndex = win.View.Slide.SlideIndex;
+            SourceSlideIndex = selectedSlideIndex;
+
+            ZoomShapeNames.Clear();
+            foreach (var name in selectedNames)
+                ZoomShapeNames.Add(name);
+
             MessageBox.Show(
-                $"{ZoomShapeNames.Count} zoom area(s) stored from Slide {SourceSlideIndex}.\n\n" +
+                $"{ZoomShapeNames.Count} zoom area(s) selected for Slide {SourceSlideIndex}.\n\n" +
                 "Click 'Add + Create Zoom' to build the full morph sequence.",
                 "Zoom Areas Selected",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
 
             return true;
+        }
+
+        internal static bool AddZoomSelectionRectangle(PowerPoint.Application app)
+        {
+            if (!TryCreateZoomSelectionRectangle(app))
+            {
+                Warn("Could not add zoom area rectangle on the active slide.", "Zoom Area");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryCreateZoomSelectionRectangle(PowerPoint.Application app)
+        {
+            try
+            {
+                if (app?.ActivePresentation == null) return false;
+
+                var win = app.ActiveWindow;
+                if (win?.View == null) return false;
+
+                var slide = win.View.Slide as PowerPoint.Slide;
+                if (slide == null) return false;
+
+                float slideW = app.ActivePresentation.PageSetup.SlideWidth;
+                float slideH = app.ActivePresentation.PageSetup.SlideHeight;
+
+                float w = slideW * 0.30f;
+                float h = slideH * 0.30f;
+                float left = (slideW - w) / 2f;
+                float top = (slideH - h) / 2f;
+
+                var rect = slide.Shapes.AddShape(
+                    Office.MsoAutoShapeType.msoShapeRectangle,
+                    left, top, w, h);
+
+                rect.Name = "ZOOM_AREA_" + DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture);
+                rect.Tags.Add(ZoomAreaMarkerTag, "True");
+                rect.Fill.Visible = Office.MsoTriState.msoTrue;
+                rect.Fill.Transparency = 1f;
+                rect.Line.Visible = Office.MsoTriState.msoTrue;
+                rect.Line.ForeColor.RGB = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.RoyalBlue);
+                rect.Line.Weight = 2f;
+                rect.Select();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool IsZoomAreaMarkerShape(PowerPoint.Shape sh)
+        {
+            try
+            {
+                if (sh == null) return false;
+                if (sh.Tags[ZoomAreaMarkerTag] == "True") return true;
+
+                string name = sh.Name ?? string.Empty;
+                return name.StartsWith("ZOOM_AREA_", StringComparison.OrdinalIgnoreCase)
+                    || name.StartsWith("ZOOM_AUTO_", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         // ─────────────────────────────────────────────────────────────────────
