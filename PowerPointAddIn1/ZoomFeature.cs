@@ -297,11 +297,18 @@ namespace PowerPointAddIn1
                 ApplyMorph(zoomIn);
             }
 
-            int inserted = ZoomShapeNames.Count * 2;
+            int areaCount = ZoomShapeNames.Count;
+
+            // Remove temporary zoom marker rectangles from the original slide
+            // after sequence generation.
+            RemoveZoomAreaMarkers(src);
+            ZoomShapeNames.Clear();
+
+            int inserted = areaCount * 2;
             MessageBox.Show(
                 $"Zoom sequence created!\n\n" +
                 $"{inserted} slides inserted after Slide {SourceSlideIndex}.\n" +
-                $"Pattern: Original \u2192 Zoom \u2192 Original  (\u00d7{ZoomShapeNames.Count})\n\n" +
+                $"Pattern: Original \u2192 Zoom \u2192 Original  (\u00d7{areaCount})\n\n" +
                 "Morph transition applied to all slides.",
                 "Success",
                 MessageBoxButtons.OK,
@@ -457,6 +464,20 @@ namespace PowerPointAddIn1
                     var s = pres.Slides[i];
                     if (s.Tags[ZoomTag] == "true" && s.Tags[ZoomSourceSlideIdTag] == sourceIdText)
                         pres.Slides[i].Delete();
+                }
+                catch { }
+            }
+        }
+
+        private static void RemoveZoomAreaMarkers(PowerPoint.Slide slide)
+        {
+            for (int i = slide.Shapes.Count; i >= 1; i--)
+            {
+                try
+                {
+                    var sh = slide.Shapes[i];
+                    if (IsZoomAreaMarkerShape(sh))
+                        sh.Delete();
                 }
                 catch { }
             }
