@@ -15,6 +15,8 @@ namespace PowerPointAddIn1
 
         public Color BackgroundColor { get; set; } = Color.Black;
         public Color SectionNameColor { get; set; } = Color.White;
+        public Color CurrentSectionNameColor { get; set; } = Color.White;
+        public Color OtherSectionNameColor { get; set; } = Color.Gainsboro;
         public Color CurrentSlideColor { get; set; } = Color.White;
         public Color SameSubsectionBorderColor { get; set; } = Color.Red;
         public Color SameSubsectionFillColor { get; set; } = Color.Black;
@@ -42,6 +44,8 @@ namespace PowerPointAddIn1
         {
             BackgroundColor = Color.Black;
             SectionNameColor = Color.White;
+            CurrentSectionNameColor = Color.White;
+            OtherSectionNameColor = Color.Gainsboro;
             CurrentSlideColor = Color.White;
             SameSubsectionBorderColor = Color.Red;
             SameSubsectionFillColor = Color.Black;

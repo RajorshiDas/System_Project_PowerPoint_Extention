@@ -264,25 +264,21 @@ namespace PowerPointAddIn1
             // structure as it exists without agenda slides, which is what the
             // user originally tagged and expects to see.
             List<AgendaItem> items = BuildAgendaItems(structure);
-            List<List<AgendaItem>> pages = SplitIntoPages(items, available);
+            List<AgendaItem> singlePageItems = BuildSinglePageItems(items, available);
 
-            // Create each agenda slide
-            for (int p = 0; p < pages.Count; p++)
-            {
-                int insertAt = 2 + p; // after slide 1
-                PowerPoint.Slide slide = pres.Slides.Add(
-                    insertAt, PowerPoint.PpSlideLayout.ppLayoutBlank);
+            int insertAt = 2; // after slide 1
+            PowerPoint.Slide slide = pres.Slides.Add(
+                insertAt, PowerPoint.PpSlideLayout.ppLayoutBlank);
 
-                slide.FollowMasterBackground = Office.MsoTriState.msoFalse;
-                slide.Background.Fill.Solid();
-                slide.Background.Fill.ForeColor.RGB = ColorTranslator.ToOle(Color.White);
+            slide.FollowMasterBackground = Office.MsoTriState.msoFalse;
+            slide.Background.Fill.Solid();
+            slide.Background.Fill.ForeColor.RGB = ColorTranslator.ToOle(Color.White);
 
-                AddTitle(slide, slideWidth, p + 1, pages.Count);
-                RenderItems(slide, pages[p], slideWidth, pres, pages.Count);
-                TagAgendaSlide(slide);
-            }
+            AddTitle(slide, slideWidth, 1, 1);
+            RenderItems(slide, singlePageItems, slideWidth, pres, 1);
+            TagAgendaSlide(slide);
 
-            return pages.Count;
+            return 1;
         }
 
         // ================================================================
@@ -367,6 +363,57 @@ namespace PowerPointAddIn1
             if (page.Count > 0) pages.Add(page);
             if (pages.Count == 0) pages.Add(new List<AgendaItem>());
             return pages;
+        }
+
+        private static List<AgendaItem> BuildSinglePageItems(
+            List<AgendaItem> items, float availableHeight)
+        {
+            var page = new List<AgendaItem>();
+            float used = 0f;
+            int index = 0;
+
+            for (; index < items.Count; index++)
+            {
+                AgendaItem item = items[index];
+                float h = item.Height;
+
+                if (page.Count == 0 && item.IsSection)
+                    h = SectionLineHeight;
+
+                if (page.Count > 0 && used + h > availableHeight)
+                    break;
+
+                page.Add(item);
+                used += h;
+            }
+
+            if (index < items.Count)
+            {
+                int remaining = items.Count - index;
+                var moreItem = new AgendaItem
+                {
+                    IsSection = true,
+                    Text = $"... and {remaining} more",
+                    SlideNumber = 0,
+                    Height = SectionLineHeight
+                };
+
+                float moreHeight = page.Count == 0 ? SectionLineHeight : moreItem.Height;
+
+                while (page.Count > 0 && used + moreHeight > availableHeight)
+                {
+                    AgendaItem removed = page[page.Count - 1];
+                    page.RemoveAt(page.Count - 1);
+                    used -= removed.Height;
+                    remaining++;
+                    moreItem.Text = $"... and {remaining} more";
+                }
+
+                if (used + moreHeight <= availableHeight)
+                    page.Add(moreItem);
+            }
+
+            return page;
         }
 
         // ================================================================

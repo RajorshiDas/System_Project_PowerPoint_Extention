@@ -362,7 +362,7 @@ namespace PowerPointAddIn1
 
         private void RemoveNavigationBar(PowerPoint.Slide slide)
         {
-            // Restore content shapes to their pre-nav-bar geometry
+            // Keep content geometry unchanged; only clear old nav-bar geometry tags if present.
             for (int i = 1; i <= slide.Shapes.Count; i++)
             {
                 try
@@ -372,11 +372,6 @@ namespace PowerPointAddIn1
 
                     string savedTop = sh.Tags["NavBarOrigTop"];
                     if (string.IsNullOrEmpty(savedTop)) continue;
-
-                    sh.Left = float.Parse(sh.Tags["NavBarOrigLeft"], System.Globalization.CultureInfo.InvariantCulture);
-                    sh.Top = float.Parse(savedTop, System.Globalization.CultureInfo.InvariantCulture);
-                    sh.Width = float.Parse(sh.Tags["NavBarOrigWidth"], System.Globalization.CultureInfo.InvariantCulture);
-                    sh.Height = float.Parse(sh.Tags["NavBarOrigHeight"], System.Globalization.CultureInfo.InvariantCulture);
 
                     try { sh.Tags.Delete("NavBarOrigLeft"); } catch { }
                     try { sh.Tags.Delete("NavBarOrigTop"); } catch { }
@@ -476,27 +471,6 @@ namespace PowerPointAddIn1
             // Bar height grows with the number of bands
             float barHeight = bands.Count * bandHeight + 6f; // 3pt top + 3pt bottom margin
 
-            // Scale existing slide content to fit below the bar
-            float contentScale = (slideHeight - barHeight) / slideHeight;
-            for (int k = 1; k <= slide.Shapes.Count; k++)
-            {
-                try
-                {
-                    var sh = slide.Shapes[k];
-                    if (sh.Tags["NavBar"] == "True") continue;
-                    if (!string.IsNullOrEmpty(sh.Tags["NavBarOrigTop"])) continue;
-
-                    sh.Tags.Add("NavBarOrigLeft",   sh.Left.ToString("R",   System.Globalization.CultureInfo.InvariantCulture));
-                    sh.Tags.Add("NavBarOrigTop",    sh.Top.ToString("R",    System.Globalization.CultureInfo.InvariantCulture));
-                    sh.Tags.Add("NavBarOrigWidth",  sh.Width.ToString("R",  System.Globalization.CultureInfo.InvariantCulture));
-                    sh.Tags.Add("NavBarOrigHeight", sh.Height.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
-
-                    sh.Top    = barHeight + sh.Top * contentScale;
-                    sh.Height = sh.Height * contentScale;
-                }
-                catch { }
-            }
-
             // Background bar - USE CUSTOM COLOR
             PowerPoint.Shape navBackground = slide.Shapes.AddShape(
                 Office.MsoAutoShapeType.msoShapeRectangle,
@@ -506,6 +480,7 @@ namespace PowerPointAddIn1
             navBackground.Tags.Add("NavBar", "True");
 
             int currentSlideIndex = slide.SlideIndex;
+            int currentSectionIndex = GetSectionIndexForSlide(sections, currentSlideIndex);
 
             // Pass 3 – draw each band: columns are  SECTION NAME
             //                                        ● ● ● ●
@@ -528,7 +503,10 @@ namespace PowerPointAddIn1
                         Office.MsoTextOrientation.msoTextOrientationHorizontal,
                         currentX, labelY, cw, labelHeight);
                     sectionLabel.TextFrame.TextRange.Text = sectionName;
-                    sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(navBarSettings.SectionNameColor);
+                    System.Drawing.Color sectionNameColor = i == currentSectionIndex
+                        ? navBarSettings.CurrentSectionNameColor
+                        : navBarSettings.OtherSectionNameColor;
+                    sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(sectionNameColor);
                     sectionLabel.TextFrame.TextRange.Font.Size = labelFontSize;
                     sectionLabel.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
                     sectionLabel.Line.Visible = Office.MsoTriState.msoFalse;

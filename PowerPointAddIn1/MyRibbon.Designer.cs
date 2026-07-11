@@ -38,8 +38,8 @@ namespace PowerPointAddIn1
             this.tab1 = this.Factory.CreateRibbonTab();
             this.group2 = this.Factory.CreateRibbonGroup();
             this.SubSectionStart = this.Factory.CreateRibbonEditBox();
-            this.btnCreateSubsection = this.Factory.CreateRibbonButton();
             this.lblSubsectionName = this.Factory.CreateRibbonLabel();
+            this.btnCreateSubsection = this.Factory.CreateRibbonButton();
             this.SubSectionEnd = this.Factory.CreateRibbonEditBox();
             this.valueSubsectionName = this.Factory.CreateRibbonLabel();
             this.group4 = this.Factory.CreateRibbonGroup();
@@ -126,8 +126,8 @@ namespace PowerPointAddIn1
             // group2
             // 
             this.group2.Items.Add(this.SubSectionStart);
-            this.group2.Items.Add(this.btnCreateSubsection);
             this.group2.Items.Add(this.lblSubsectionName);
+            this.group2.Items.Add(this.btnCreateSubsection);
             this.group2.Items.Add(this.SubSectionEnd);
             this.group2.Items.Add(this.valueSubsectionName);
             this.group2.Label = "Subsection";
@@ -140,16 +140,16 @@ namespace PowerPointAddIn1
             this.SubSectionStart.Text = null;
             this.SubSectionStart.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.editBox2_TextChanged);
             // 
+            // lblSubsectionName
+            // 
+            this.lblSubsectionName.Label = "Current subsection name : ";
+            this.lblSubsectionName.Name = "lblSubsectionName";
+            // 
             // btnCreateSubsection
             // 
             this.btnCreateSubsection.Label = "Create Subsection";
             this.btnCreateSubsection.Name = "btnCreateSubsection";
             this.btnCreateSubsection.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnCreateSubsection_Click);
-            // 
-            // lblSubsectionName
-            // 
-            this.lblSubsectionName.Label = "Current subsection name : ";
-            this.lblSubsectionName.Name = "lblSubsectionName";
             // 
             // SubSectionEnd
             // 

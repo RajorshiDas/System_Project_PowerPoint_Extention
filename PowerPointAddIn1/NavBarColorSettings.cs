@@ -20,6 +20,8 @@ namespace PowerPointAddIn1
             {
                 BackgroundColor = currentSettings.BackgroundColor,
                 SectionNameColor = currentSettings.SectionNameColor,
+                CurrentSectionNameColor = currentSettings.CurrentSectionNameColor,
+                OtherSectionNameColor = currentSettings.OtherSectionNameColor,
                 CurrentSlideColor = currentSettings.CurrentSlideColor,
                 SameSubsectionBorderColor = currentSettings.SameSubsectionBorderColor,
                 SameSubsectionFillColor = currentSettings.SameSubsectionFillColor,
@@ -48,7 +50,7 @@ namespace PowerPointAddIn1
         private void InitializeComponents()
         {
             this.Text = "Customize Navigation Bar";
-            this.Size = new Size(450, 620);
+            this.Size = new Size(450, 660);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -110,7 +112,8 @@ namespace PowerPointAddIn1
             y += 30;
 
             AddColorOption("Background Color:", settings.BackgroundColor, y, (c) => settings.BackgroundColor = c); y += 45;
-            AddColorOption("Section Names:", settings.SectionNameColor, y, (c) => settings.SectionNameColor = c); y += 45;
+            AddColorOption("Current Section Name:", settings.CurrentSectionNameColor, y, (c) => settings.CurrentSectionNameColor = c); y += 45;
+            AddColorOption("Other Section Names:", settings.OtherSectionNameColor, y, (c) => settings.OtherSectionNameColor = c); y += 45;
             AddColorOption("Current Slide:", settings.CurrentSlideColor, y, (c) => settings.CurrentSlideColor = c); y += 45;
             AddColorOption("Slide Numbers:", settings.SlideNumberColor, y, (c) => settings.SlideNumberColor = c); y += 45;
             AddColorOption("Same Subsection Border:", settings.SameSubsectionBorderColor, y, (c) => settings.SameSubsectionBorderColor = c); y += 45;
@@ -242,6 +245,19 @@ namespace PowerPointAddIn1
             float circleSpacing = 6;
 
             int currentSlideIndex = slide.SlideIndex;
+            int currentSectionIndex = 0;
+            for (int si = 1; si <= sections.Count; si++)
+            {
+                int firstSlide = sections.FirstSlide(si);
+                int slideCount = sections.SlidesCount(si);
+                int lastSlide = firstSlide + slideCount - 1;
+
+                if (currentSlideIndex >= firstSlide && currentSlideIndex <= lastSlide)
+                {
+                    currentSectionIndex = si;
+                    break;
+                }
+            }
 
             for (int i = 1; i <= sections.Count; i++)
             {
@@ -254,7 +270,10 @@ namespace PowerPointAddIn1
                     Office.MsoTextOrientation.msoTextOrientationHorizontal,
                     currentX, topY, 200, 20);
                 sectionLabel.TextFrame.TextRange.Text = sectionName;
-                sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(previewSettings.SectionNameColor);
+                var sectionNameColor = i == currentSectionIndex
+                    ? previewSettings.CurrentSectionNameColor
+                    : previewSettings.OtherSectionNameColor;
+                sectionLabel.TextFrame.TextRange.Font.Color.RGB = System.Drawing.ColorTranslator.ToOle(sectionNameColor);
                 sectionLabel.TextFrame.TextRange.Font.Size = 12;
                 sectionLabel.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
                 sectionLabel.Line.Visible = Office.MsoTriState.msoFalse;
